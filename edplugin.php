@@ -3,7 +3,7 @@
 Plugin Name: ED. Plugin
 Plugin URI: http://ed.com.au
 Description: Provides a bunch of cool stuff for ED. Developers
-Version: 1.3.10
+Version: 1.0.0
 Author: Daniel Lever
 Text Domain: edplugin
 License: GPLv2 or later.
@@ -16,3 +16,6 @@ $myUpdateChecker = PucFactory::buildUpdateChecker('http://ed-wp-plugin.ed.com.au
 
 // Boot up
 require_once("core/ed.php");
+
+// Load WP-LESS sub-plugin
+include_once("lib/wp-less/bootstrap.php");
