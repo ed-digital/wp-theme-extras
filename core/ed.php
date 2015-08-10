@@ -86,8 +86,20 @@
 			add_action('admin_head', array($this, "_hookListingColumns"));
 			add_action('admin_init', array($this, "_hookACFJSON"));
 			add_action('init', array($this, '_enqueueFiles'));
-			
 			add_action('admin_notices', array($this, '_showPluginWarnings'));
+			
+			add_filter('plugin_row_meta', array($this, "addPluginLinks"), 0, 4);
+			
+		}
+		
+		public function addPluginLinks($meta, $file, $data, $status) {
+			
+			if($file == "ed/edplugin.php") {
+				$meta[] = "<a href='http://ed-wp-plugin.ed.com.au/release/ed-".$data['Version']."-starter.zip'>Download Starter Theme</a>";
+				$meta[] = "<a href='https://bitbucket.org/ed_digital/ed-wp-plugin/wiki/Home'>View Wiki</a>";
+			}
+			
+			return $meta;
 			
 		}
 		
