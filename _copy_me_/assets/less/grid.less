@@ -1,0 +1,234 @@
+._gen-columns(@suffix, @columnWidth, @columnGutterWidth, @iteration: 1) when (@iteration =< 12) {
+	@suffixStr: ~"@{suffix}";
+	.col@{suffixStr}-@{iteration} {
+		width: @columnWidth * @iteration + @columnGutterWidth * (@iteration - 1);
+		margin-left: @columnGutterWidth;
+		box-sizing: border-box;
+	}
+	._gen-columns(@suffix, @columnWidth, @columnGutterWidth, @iteration + 1);
+}
+
+._gen-columns-push(@suffix, @columnWidth, @columnGutterWidth, @iteration: 0) when (@iteration =< 12) {
+	@suffixStr: ~"@{suffix}";
+	.col@{suffixStr}-push-@{iteration} {
+		left: @columnWidth * @iteration + @columnGutterWidth * @iteration;
+	}
+	._gen-columns-push(@suffix, @columnWidth, @columnGutterWidth, @iteration + 1);
+}
+
+._gen-columns-pull(@suffix, @columnWidth, @columnGutterWidth, @iteration: 0) when (@iteration =< 12) {
+	@suffixStr: ~"@{suffix}";
+	.col@{suffixStr}-pull-@{iteration} {
+		left: -(@columnWidth * @iteration + @columnGutterWidth * @iteration);
+	}
+	._gen-columns-pull(@suffix, @columnWidth, @columnGutterWidth, @iteration + 1);
+}
+
+/* Generate the row class plus column def */
+._gen-row(@suffix, @columnWidth, @columnGutterWidth) {
+	@suffixStr: ~"@{suffix}";
+	.row {
+		clear: both;
+		box-sizing: border-box;
+		margin-left: -@columnGutterWidth;
+		
+		&::after, &::before {
+			display: block;
+			clear: both;
+			content: " ";
+		}
+		
+		&:after, &:before {
+			display: block;
+			clear: both;
+			content: " ";
+		}
+		
+		& > .col@{@suffixStr}-break {
+			clear: both;
+		}
+		
+		&.row@{@suffixStr}-no-wrap {
+			white-space: nowrap;
+			font-size: 1px;
+			
+			> * {
+				display: inline-block;
+				white-space: normal;
+				vertical-align: top;
+				float: none;
+				font-size: 1rem;
+			}
+		}
+		
+		> * {
+			position: relative;
+			float: left;
+		}
+		
+	}
+		
+	._gen-columns(@suffix, @columnWidth, @columnGutterWidth);
+	._gen-columns-push(@suffix, @columnWidth, @columnGutterWidth);
+	._gen-columns-pull(@suffix, @columnWidth, @columnGutterWidth);
+}
+
+/* A pixel based grid */
+._gen-grid(@suffix, @wrapperWidth, @columnGutterWidth, @wrapperPadding) when (ispercentage(@wrapperWidth) = false) {
+
+	@columnWidth: ((@wrapperWidth - ( 11 * @columnGutterWidth)) / 12);
+	
+	.wrapper {
+		width: @wrapperWidth + @wrapperPadding * 2;
+		margin: auto;
+		padding-left: @wrapperPadding;
+		padding-right: @wrapperPadding;
+		box-sizing: border-box;
+	}
+	
+	.faux-row {
+		position: relative;
+		width: @wrapperWidth;
+		margin: auto;
+	}
+	
+	.faux-row-positioned-left-inset {
+		position: absolute;
+		left: 50%;
+		margin-left: -@wrapperWidth/2;
+	}
+	
+	.faux-row-positioned-right-inset {
+		position: absolute;
+		right: 50%;
+		margin-right: -@wrapperWidth/2;
+	}
+	
+	.faux-row-positioned-left {
+		position: absolute;
+		left: 50%;
+		margin-left: -@wrapperWidth/2 - @wrapperPadding;
+	}
+	
+	.faux-row-positioned-right {
+		position: absolute;
+		right: 50%;
+		margin-right: -@wrapperWidth/2 - @wrapperPadding;
+	}
+	
+	._gen-row(@suffix, @columnWidth, @columnGutterWidth);
+	
+}
+
+/* A percentage based grid */
+._gen-grid(@suffix, @wrapperWidth, @columnGutterWidth, @wrapperPadding) when (ispercentage(@wrapperWidth) = true) {
+
+	@columnWidth: ((@wrapperWidth - ( 12 * @columnGutterWidth)) / 12);
+	
+	.wrapper {
+		width: @wrapperWidth;
+		margin: auto;
+		padding-left: @columnGutterWidth;
+		padding-right: @columnGutterWidth;
+		box-sizing: border-box;
+	}
+	
+	.faux-row {
+		position: relative;
+		width: @wrapperWidth;
+		margin: auto;
+	}
+	
+	.faux-row-positioned-left-inset {
+		position: absolute;
+		left: 0px;
+		margin-left: @columnGutterWidth;
+	}
+	
+	.faux-row-positioned-right-inset {
+		position: absolute;
+		right: 0px;
+		margin-right: @columnGutterWidth;
+	}
+	
+	.faux-row-positioned-left {
+		position: absolute;
+		left: 0px;
+		margin-left: 0px;
+	}
+	
+	.faux-row-positioned-right {
+		position: absolute;
+		right: 0px;
+		margin-right: 0px;
+	}
+	
+	._gen-row(@suffix, @columnWidth, @columnGutterWidth);
+	
+}
+
+/* Generate classes which hide named columns */
+._gen-hidecols(@name) {
+	@prefix: ~"@{name}";
+	
+	.visible-@{prefix} {
+		display: none;
+	}
+}
+
+/* Generate classes which hide named columns */
+._gen-showcols(@name) {
+	@prefix: ~"@{name}";
+	
+	.visible-@{prefix} {
+		display: block;
+	}
+	
+	.hidden-@{prefix} {
+		display: none;
+	}
+}
+
+/*
+	Generate a non-named grid with the given properties
+*/
+.generate-grid(@wrapperWidth, @columnGutterWidth: 0px, @wrapperPadding: 0px) {
+	
+	.hidden {
+		display: none;
+	}
+	
+	._gen-grid("", @wrapperWidth, @columnGutterWidth, @wrapperPadding);
+	
+}
+
+/*
+	Generate a named grid with the given properties
+*/
+.generate-named-grid(@name, @wrapperWidth, @columnGutterWidth, @wrapperPadding) {
+	
+	._gen-grid("-@{name}", @wrapperWidth, @columnGutterWidth, @wrapperPadding);
+	
+}
+
+/*
+	Generate a non-named grid, wrapped in a media query
+*/
+.generate-media-grid(@mediaDef, @wrapperWidth, @columnGutterWidth, @wrapperPadding) {
+	@media @mediaDef {
+		._gen-grid("", @wrapperWidth, @columnGutterWidth, @wrapperPadding);
+	}
+}
+
+/*
+	Generate a named grid, wrapped in a media query
+*/
+.generate-named-media-grid(@name, @mediaDef, @wrapperWidth, @columnGutterWidth, @wrapperPadding) {
+	
+	@media @mediaDef {
+		.generate-grid(@wrapperWidth, @columnGutterWidth, @wrapperPadding);
+		.generate-named-grid(@name, @wrapperWidth, @columnGutterWidth, @wrapperPadding);
+		._gen-showcols(@name);
+	}
+	
+}

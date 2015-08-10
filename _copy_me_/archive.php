@@ -1,0 +1,3 @@
+<?
+	include("page-news.php");
+?>
