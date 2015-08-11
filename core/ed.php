@@ -1,11 +1,5 @@
 <?
 	
-/*
-	class ED_Theme extends WP_Theme {
-		
-	}
-	
-*/
 	class ED {
 		
 		private static $instance;
