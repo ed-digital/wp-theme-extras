@@ -91,6 +91,27 @@
 			$this->loadDir("includes/post-types");
 		}
 		
+		public function enqueueFiles() {
+			
+			if(is_admin()) return;
+			
+			// ED Sitekit
+			if($this->config['includeSiteKit'] == true) {
+				
+				$this->addJS("assets/js/ed-sitekit.js", array(
+					"jquery-ui-widget"
+				));
+				
+			}
+			
+			// Automatically include all widget files
+			$widgetFiles = glob($this->themePath."/assets/js/widgets/*.js");
+			foreach($widgetFiles as $file) {
+				$this->addJS($this->getURL($file));
+			}
+			
+		}
+		
 		public function addPluginLinks($meta, $file, $data, $status) {
 			
 			if($file == "ed/edplugin.php") {
@@ -133,27 +154,6 @@
 				echo "<div class='error'><p>The following plugin(s) are missing: ".implode(", ", $missingPlugins)."</p></div>";
 			}
 
-		}
-		
-		public function enqueueFiles() {
-			
-			if(is_admin()) return;
-			
-			// ED Sitekit
-			if($this->config['includeSiteKit'] == true) {
-				
-				$this->addJS("assets/js/ed-sitekit.js", array(
-					"jquery-ui-widget"
-				));
-				
-			}
-			
-			// Automatically include all widget files
-			$widgetFiles = glob($this->themePath."/assets/js/widgets/*.js");
-			foreach($widgetFiles as $file) {
-				$this->addJS($this->getURL($file));
-			}
-			
 		}
 		
 		public function setConfig($key, $val = null) {
@@ -505,6 +505,10 @@
 			
 			return @get_post(end($ancestors));
 			
+		}
+		
+		public function printBreadcrumbs($options = array()) {
+			EDBreadcrumbs::printBreadcrumbs($options);
 		}
 		
 	}
