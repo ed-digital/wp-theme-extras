@@ -28,19 +28,17 @@
 			"includeSiteKit" => true
 		);
 		
-		private function __construct() {
-			
-		}
+		protected function __construct() { }
 		
 		static function getInstance() {
 			if(!self::$instance) {
 				self::$instance = new ED();
-				add_action('init', array(self::$instance, 'init'));
+				self::$instance->init();
 			}
 			return self::$instance;
 		}
 		
-		public function init() {
+		protected function init() {
 			
 			$this->themeURL = get_stylesheet_directory_uri();
 			$this->themePath = get_stylesheet_directory();
@@ -167,6 +165,22 @@
 			return str_replace($this->sitePath, $includeDomain ? $this->siteURL : "/", $localPath);
 		}
 		
+		public function locateFile($path) {
+			
+			$paths = [
+				$this->themePath."/".$path,
+				$this->edPath."/".$path,
+				$path
+			];
+			
+			foreach($paths as $item) {
+				if(file_exists($item)) {
+					return $item;
+				}
+			}
+			
+		}
+		
 		public function addCSS($src) {
 			
 			if(is_string($src)) {
@@ -175,7 +189,7 @@
 			
 			foreach($src as $path) {
 				$path = preg_replace("/^([\/]+)/", "", $path);
-				$location = locate_template($path);
+				$location = $this->locateFile($path);
 				if($location) {
 					wp_enqueue_style(md5($path), $this->getURL($location));
 				}
@@ -195,7 +209,7 @@
 				if(strpos($path, "http://") === 0) {
 					$url = $path;
 				} else {
-					$location = locate_template($path);
+					$location = $this->locateFile($path);
 					if($location) {
 						$url = $this->getURL($location);
 					}
