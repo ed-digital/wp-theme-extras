@@ -58,9 +58,8 @@
 			
 			// Include stuff
 			$this->loadDir("includes", true);
-			$this->loadDir("includes/post-types");
 			
-			add_action("init", array($this, "_onWPInit"));
+			add_action("init", array($this, "wpInit"));
 			
 			// Add filter which filters out disabled templates
 			add_filter("theme_page_templates", function($list) {
@@ -77,11 +76,19 @@
 			
 			add_action('admin_head', array($this, "_hookListingColumns"));
 			add_action('admin_init', array($this, "_hookACFJSON"));
-			add_action('init', array($this, '_enqueueFiles'));
 			add_action('admin_notices', array($this, '_showPluginWarnings'));
 			
 			add_filter('plugin_row_meta', array($this, "addPluginLinks"), 0, 4);
 			
+		}
+		
+		public function wpInit() {
+			$this->includePostTypes();
+			$this->enqueueFiles();
+		}
+		
+		public function includePostTypes() {
+			$this->loadDir("includes/post-types");
 		}
 		
 		public function addPluginLinks($meta, $file, $data, $status) {
@@ -128,7 +135,7 @@
 
 		}
 		
-		public function _enqueueFiles() {
+		public function enqueueFiles() {
 			
 			if(is_admin()) return;
 			
@@ -215,9 +222,6 @@
 				}
 			}
 			
-		}
-		
-		public function _onWPInit() {
 		}
 		
 		public function defineModule($name, $settings = array()) {
