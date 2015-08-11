@@ -96,7 +96,9 @@
 		}
 		
 		public function _showInvalidSetup() {
+			
 			echo "<div class='error'><p>You've activated the wrong theme! The 'ED Digital. Parent Theme' should never be activated directly, but should be activated as a parent theme.</p></div>";
+			
 		}
 		
 		public function _showPluginWarnings() {
