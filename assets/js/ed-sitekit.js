@@ -15,8 +15,8 @@ var SiteKit = {};
 			if(data.hasBeenInitialized) return;
 			
 			// Throw an error if that widget doesn't exist
-			if(data.widget in $.fn == false) {
-				if(data.widgetOptional == true) {
+			if(data.widget in $.fn === false) {
+				if(data.widgetOptional === true) {
 					return;
 				} else {
 					throw new Error("Could not initialize widget '"+data.widget+"', as no widget with this name has been declared.");
@@ -26,11 +26,19 @@ var SiteKit = {};
 			// Mark as initialized
 			el.data('hasBeenInitialized', true);
 			
+			var args = {};
+			
+			for(var k in data) {
+				if(k[0] !== "_") {
+					args[k] = data[k];
+				}
+			}
+			
 			// Spawn the widget
-			el[data.widget](data);
+			el[data.widget](args);
 			
 		});
-	}
+	};
 	
 	SiteKit.xhrOptions = {
 		scrollAnimation: {
@@ -61,7 +69,7 @@ var SiteKit = {};
 	
 	SiteKit.setupXHR = function(options) {
 		$.extend(SiteKit.xhrOptions, options);
-	}
+	};
 	
 	var XHRRequestCounter = 0;
 	
@@ -97,7 +105,7 @@ var SiteKit = {};
 			// Pull out the contents
 			var foundPageContainer = result.find("[data-page-container]:first");
 			
-			if(foundPageContainer.size() == 0) {
+			if(foundPageContainer.size() === 0) {
 				// Could not find a page container element :/ just link to the page
 				window.location.href = originalURL;
 				console.error("Could not find an element with a `data-page-container` attribute within the fetched XHR page response. Sending user directly to the page.");
@@ -203,7 +211,7 @@ var SiteKit = {};
 					history.pushState({}, title, originalURL);
 				}
 			
-			}
+			};
 			
 			if(SiteKit.xhrOptions.loadImages) {
 				SiteKit.preloadContent(newContent, SiteKit.xhrOptions.imageLoadTimeout, finalize);
@@ -213,13 +221,13 @@ var SiteKit = {};
 			
 		});
 		
-	}
+	};
 	
 	SiteKit.initXHRPageSystem = function() {
 		
 		// Grab the page container, if one exists
 		SiteKit.XHRPageContainer = $("[data-page-container]:first");
-		if(SiteKit.XHRPageContainer.size() == 0) {
+		if(SiteKit.XHRPageContainer.size() === 0) {
 			SiteKit.XHRPageContainer = null;
 			return;
 		}
@@ -231,17 +239,19 @@ var SiteKit = {};
 		}).ajaxStop(function() {
 			$(document.body).removeClass("xhr-loading");
 			$(document).trigger("xhrLoadingStop");
-		})
+		});
 		
 		// Add event listeners to links where appropriate
 		SiteKit.handleXHRLinks();
 		
 		// Handle browser back button
 		window.addEventListener("popstate", function(e) {
-			SiteKit.goToURL(window.location.href, true);
+			if(e.state) {
+				SiteKit.goToURL(window.location.href, true);
+			}
 		});
 		
-	}
+	};
 	
 	SiteKit.handleXHRLinks = function(targetEl) {
 		
@@ -257,12 +267,16 @@ var SiteKit = {};
 			
 			// Ensure the URL is usable
 			var url = this.href;
-			if(url.indexOf(baseURL) != 0) {
+			if(url.indexOf(baseURL) !== 0) {
 				// Link is not on this site
 				return;
 			}
 			if(url.match(/\.[a-z]$/i) || url.match(/^(mailto|tel)\:/i)) {
 				// Link is a file
+				return;
+			}
+			if(url.match(/\#/)) {
+				// link contains a hashbang
 				return;
 			}
 			
@@ -273,14 +287,14 @@ var SiteKit = {};
 			
 		});
 		
-	}
+	};
 	
 	SiteKit._xhrErrorCodes = {
 		"timeout": "Timed out while making API request",
 		"abort": "XHR request was aborted",
 		"error": "XHR request encountered an error",
 		"parsererror": "Unable to parse API request"
-	}
+	};
 	
 	SiteKit.callAPI = function(method, args, callback) {
 		
@@ -288,8 +302,6 @@ var SiteKit = {};
 			callback = args;
 			args = null;
 		}
-		
-		console.log("Calling");
 		
 		$.ajax({
 			method: 'post',
@@ -317,13 +329,13 @@ var SiteKit = {};
 			}
 		});
 		
-	}
+	};
 	
 	var preloadedImages = [];
 	
 	SiteKit.preloadImages = function(srcs, timeout, callback) {
 		
-		if(srcs.length == 0) {
+		if(srcs.length === 0) {
 			callback();
 			return;
 		}
@@ -336,7 +348,7 @@ var SiteKit = {};
 				callbackCalled = true;
 				if(callback) callback();
 			}
-		}
+		};
 		
 		var loaded = function(img) {
 			images.push(img);
@@ -344,7 +356,7 @@ var SiteKit = {};
 			if(images.length == srcs.length) {
 				triggerCallback();
 			}
-		}
+		};
 		
 		if(timeout !== false) {
 			setTimeout(function() {
@@ -374,7 +386,7 @@ var SiteKit = {};
 			}
 			
 		});
-	}
+	};
 	
 	/*
 		Preloads images from the specified elements, with an optional timeout.
@@ -413,7 +425,7 @@ var SiteKit = {};
 		
 		SiteKit.preloadImages(images, timeout, callback);
 		
-	}
+	};
 	
 	// Boot up
 	$(function() {
