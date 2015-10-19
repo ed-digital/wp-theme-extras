@@ -6,14 +6,9 @@
 			"showHome" => true
 		);
 		
-		static function getBreadcrumbs($options = array(), $targetPost = null) {
+		static function getBreadcrumbs($options = array()) {
 			
 			$options = array_merge(self::$defaultOptions, $options);
-			
-			global $post;
-			if(!$targetPost) {
-				$targetPost = $post;
-			}
 			
 			// Items
 			$items = array();
@@ -48,13 +43,17 @@
 				$lastItem->isCurrent = true;
 			}
 			
+			if($options['trim']) {
+				$items = array_slice($options['trim'], 0, count($items) - $options['trim']);
+			}
+			
 			return $items;
 			
 		}
 		
-		static function printBreadcrumbs($options = array(), $targetPost = null) {
+		static function printBreadcrumbs($options = array()) {
 			
-			$breadcrumbs = self::getBreadcrumbs($options, $targetPost);
+			$breadcrumbs = self::getBreadcrumbs($options);
 			
 			echo "<ul class='breadcrumb-list'>";
 			foreach($breadcrumbs as $item) {
