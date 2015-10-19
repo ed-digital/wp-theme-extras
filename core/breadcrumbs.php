@@ -38,13 +38,13 @@
 				
 			}
 			
+			if($options['trim']) {
+				$items = array_slice($items, 0, count($items) - $options['trim']);
+			}
+			
 			if(count($items)) {
 				$lastItem = end($items);
 				$lastItem->isCurrent = true;
-			}
-			
-			if($options['trim']) {
-				$items = array_slice($options['trim'], 0, count($items) - $options['trim']);
 			}
 			
 			return $items;
