@@ -507,8 +507,8 @@
 			
 		}
 		
-		public function printBreadcrumbs($options = array()) {
-			EDBreadcrumbs::printBreadcrumbs($options);
+		public function printBreadcrumbs($options = array(), $targetPost = null) {
+			EDBreadcrumbs::printBreadcrumbs($options, $targetPost);
 		}
 		
 	}
