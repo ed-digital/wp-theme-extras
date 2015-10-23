@@ -428,11 +428,7 @@ var SiteKit = {};
 			
 		});
 		
-		if(images.length) {
-			SiteKit.preloadImages(images, timeout, callback);
-		} else {
-			callback();
-		}
+		SiteKit.preloadImages(images, timeout, callback);
 		
 	};
 	
