@@ -428,7 +428,11 @@ var SiteKit = {};
 			
 		});
 		
-		SiteKit.preloadImages(images, timeout, callback);
+		if(images.length) {
+			SiteKit.preloadImages(images, timeout, callback);
+		} else {
+			callback();
+		}
 		
 	};
 	
