@@ -53,13 +53,19 @@ var SiteKit = {};
 				duration: 200,
 				complete: function() {
 					
+					// I've recently swapped these two lines around. The .remove()
+					// call actually runs ._destroy() on any existing widgets, which
+					// should really happen before the new widgets are initialized,
+					// since widgets that mess with global event handlers (bind/unbind)
+					// should be removed before they are re-added by newly spawned widget
+					
+					// Not forgetting to remove the old content
+					originalContent.remove();
+					
 					// Fade in new content
 					newContent.fadeIn({
 						duration: 200
 					});
-					
-					// Not forgetting to remove the old content
-					originalContent.remove();
 					
 				}
 			});
