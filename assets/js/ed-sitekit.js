@@ -53,12 +53,6 @@ var SiteKit = {};
 				duration: 200,
 				complete: function() {
 					
-					// I've recently swapped these two lines around. The .remove()
-					// call actually runs ._destroy() on any existing widgets, which
-					// should really happen before the new widgets are initialized,
-					// since widgets that mess with global event handlers (bind/unbind)
-					// should be removed before they are re-added by newly spawned widget
-					
 					// Not forgetting to remove the old content
 					originalContent.remove();
 					
@@ -143,6 +137,13 @@ var SiteKit = {};
 				
 				var existingScripts = $(document.head).find("script");
 				var existingStylesheets = $(document.head).find("link[rel=stylesheet]");
+				
+				// Destroy existing widgets
+				SiteKit.XHRPageContainer.find("[data-widget]").each(function() {
+					var el = $(this);
+					var widgetName = el.data('widget');
+					el[widgetName]('destroy');
+				});
 				
 				// Swap menus out
 				result.find("ul.menu").each(function() {
