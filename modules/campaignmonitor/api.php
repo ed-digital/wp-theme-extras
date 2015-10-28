@@ -25,7 +25,7 @@
 			));
 			
 			if(!$result->was_successful()) {
-				throw new Exception("An error occurred while subscribing: (Code ".$result->response->Code.") ".$result->response->Message);
+				throw new Exception($result->response->Message);
 			}
 			
 			return true;
@@ -34,7 +34,6 @@
 		
 		public function getListID($listName) {
 			$lists = ED()->getModuleSetting("campaignmonitor", "listIDs");
-			dump("Getting list", $listName, $list);
 			return $lists[$listName];
 		}
 		
