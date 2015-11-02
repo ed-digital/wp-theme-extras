@@ -22,9 +22,5 @@
 	
 	// Large sizes
 	add_image_size("full-size", 1400, 1000, false);
-	add_image_size("slider", 1220, 800, true);
-	
-	// Post thumbnail
-	add_image_size("post-thumb", 590, 400, true);
 	
 ?>

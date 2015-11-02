@@ -12,8 +12,6 @@
 		<link rel="pingback" href="<? bloginfo( 'pingback_url' ); ?>" />
 		<link rel="shortcut icon" href="<?= get_stylesheet_directory_uri(); ?>/favicon.png"/>
 		<? wp_head(); ?>
-		<script src="//use.typekit.net/xgs4sld.js"></script>
-		<script>try{Typekit.load();}catch(e){}</script>
 	</head>
 	<body <? body_class(); ?>>
 		
@@ -24,7 +22,7 @@
 				<div class="wrapper">
 					<div class="row">
 						<div class="col-8">
-							<h1><a href="/" title="Go back to the homepage"><span>SAGE</span></a></h1>
+							<h1><a href="/" title="Go back to the homepage"><span>Website</span></a></h1>
 						</div>
 						<div class="col-4">
 							<nav>
@@ -54,7 +52,7 @@
 				<div class="wrapper">
 					<div class="row">
 						<div class="col-6">
-							&copy; Copyright 2015. Sage
+							&copy; Copyright 2015.
 						</div>
 					</div>
 				</div>
