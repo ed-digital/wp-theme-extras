@@ -35,6 +35,13 @@
 	.transition-delay(@delay);
 }
 
+.scale(@size) {
+	-webkit-transform: scale(@size);
+	-moz-transform: scale(@size);
+	-ms-transform: scale(@size);
+	transform: scale(@size);
+}
+
 .antialias() {
 	-webkit-font-smoothing: antialiased;
 	-moz-font-smoothing: antialiased;
@@ -59,4 +66,34 @@
 		bottom: 0px;
 	}
 	
+}
+
+.text-columns(@n) {
+	-webkit-column-count: @n;
+	-moz-column-count: @n;
+	column-count: @n;
+}
+
+.subpixel() {
+	-webkit-font-smoothing: subpixel-antialiased !important;
+	-moz-font-smoothing: subpixel-antialiased !important;
+	font-smoothing: subpixel-antialiased !important;
+}
+
+.antialias() {
+	-webkit-font-smoothing: antialias !important;
+	-moz-font-smoothing: antialias !important;
+	font-smoothing: antialias !important;
+}
+
+.admin-bar-top() {
+    
+	.admin-bar & {
+		top: 32px;
+        
+        @media screen and (max-width: 782px) {
+            top: 46px;
+        }
+	}
+    
 }

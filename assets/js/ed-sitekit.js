@@ -90,8 +90,6 @@ var SiteKit = {};
 		
 		$(document.body).trigger("xhrLoadStart");
 		
-		Grid.maze.showSolution('pulse', 0);
-		
 		$.get(url, function(response, textStatus) {
 			if(requestID !== XHRRequestCounter) {
 				// Looks like another request was made after this one, so ignore the response.
