@@ -479,6 +479,29 @@
 		public function defineController($name, $def) {
 			
 		}
+
+        public function genShareLink($socialNetwork='facebook') {
+            switch(strtolower($socialNetwork)) {
+                case 'facebook':
+                case 'fb':
+                    return 'http://www.facebook.com/sharer.php?u='.get_permalink().'&amp;t='.get_the_title();
+                    break;
+                case 'twitter':
+                case 'tw':
+                    return 'http://twitter.com/home/?status='.get_the_title().' - '.get_permalink(); 
+                    break;
+                case 'linkedin':
+                case 'in':
+                    return 'http://www.linkedin.com/shareArticle?mini=true&amp;title='.get_the_title().'&amp;url='.get_permalink();
+                    break;
+                case 'google+':
+                case 'g+':
+                    return 'https://plus.google.com/share?url='.get_permalink();
+                    break;
+                default:
+                    return '';
+            }
+        }
 		
 		public function registerMenu($name, $label) {
 			$menus = array();
