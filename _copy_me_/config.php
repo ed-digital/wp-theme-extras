@@ -2,7 +2,8 @@
 	 
 	ED()->setConfig([
 		"useBase" => true,
-		"includeSiteKit" => true
+		"includeSiteKit" => true,
+		// "disableAdminBar" => true
 	]);
 	
 	/* Install Instagram and Twitter modules */

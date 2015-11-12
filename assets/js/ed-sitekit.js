@@ -207,14 +207,14 @@ var SiteKit = {};
 				} catch(e) {
 					
 				}
-				newContent.hide();
-				
-				// Perform the swap!
-				SiteKit.xhrOptions.swapContent(SiteKit.XHRPageContainer, oldContent, newContent, dontPush ? "back" : "forward");
 				
 				// Set up links and widgets
 				SiteKit.initWidgets(newContent);
 				SiteKit.handleXHRLinks(newContent);
+				newContent.hide();
+				
+				// Perform the swap!
+				SiteKit.xhrOptions.swapContent(SiteKit.XHRPageContainer, oldContent, newContent, dontPush ? "back" : "forward");
 							
 				// Apply to history
 				if(!dontPush) {

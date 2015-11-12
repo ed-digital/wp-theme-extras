@@ -19,7 +19,8 @@
 		
 		public $config = array(
 			"useBase" => true,
-			"includeSiteKit" => true
+			"includeSiteKit" => true,
+			"disableAdminBar" => false
 		);
 		
 		protected function __construct() { }
@@ -85,6 +86,10 @@
 		public function wpInit() {
 			$this->includePostTypes();
 			$this->enqueueFiles();
+			
+			if($this->config['disableAdminBar']) {
+				add_filter('show_admin_bar', '__return_false');
+			}
 		}
 		
 		public function includePostTypes() {
