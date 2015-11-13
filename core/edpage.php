@@ -7,11 +7,16 @@
 		public $template = "";
 		public $base = "";
 		
+		public $originalPost = null;
+		
 		public $content = array();
 		
 		public $isXHR = false;
 		
 		public function __construct($main) {
+			
+			global $post;
+			$this->originalPost = $post;
 			
 			// Save the instance
 			self::$instance = $this;
@@ -27,6 +32,8 @@
 				unset($_GET['xhr-page']);
 				$this->isXHR = true;
 			}
+			
+			add_action('wp_footer', [$this, '_printPageStateEl']);
 			
 		}
 		
@@ -68,6 +75,25 @@
 			if(isset($this->content[$name])) {
 				echo $this->content[$name];
 			}
+			
+		}
+		
+		// Prints out an empty div in the footer, which contains page state info
+		public function _printPageStateEl() {
+			?>
+			<pagestate data-state="<?=htmlspecialchars(json_encode($this->getState()));?>"></pagestate>
+			<?
+		}
+		
+		public function getState() {
+			
+		//	dump($this);
+			
+			return [
+				"template" => $this->base,
+				"type" => $this->originalPost ? $this->originalPost->post_type : "",
+				"slug" => $this->originalPost ? $this->originalPost->post_name : ""
+			];
 			
 		}
 		

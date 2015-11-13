@@ -38,6 +38,7 @@ var SiteKit = {};
 			el[data.widget](args);
 			
 		});
+		
 	};
 	
 	SiteKit.xhrOptions = {
@@ -129,6 +130,9 @@ var SiteKit = {};
 				// Grab the body class
 				var bodyClass = result.find("bodyfake").attr('class');
 				
+				var oldPageState = SiteKit.pageState;
+				SiteKit.pageState = result.find("pagestate").data('state');
+				
 				// Set page title
 				$("head title").html(title);
 				document.body.className = bodyClass + " xhr-transitioning-out";
@@ -137,11 +141,7 @@ var SiteKit = {};
 				var existingStylesheets = $(document.head).find("link[rel=stylesheet]");
 				
 				// Destroy existing widgets
-				SiteKit.XHRPageContainer.find("[data-widget]").each(function() {
-					var el = $(this);
-					var widgetName = el.data('widget');
-					el[widgetName]('destroy');
-				});
+				SiteKit.transitionWidgetsOut(SiteKit.XHRPageContainer, oldPageState, SiteKit.pageState, true);
 				
 				// Swap menus out
 				result.find("ul.menu").each(function() {
@@ -215,7 +215,10 @@ var SiteKit = {};
 				
 				// Perform the swap!
 				SiteKit.xhrOptions.swapContent(SiteKit.XHRPageContainer, oldContent, newContent, dontPush ? "back" : "forward");
-							
+				
+				// Call _transitionIn function for the new widgets
+				SiteKit.transitionWidgetsIn(newContent, SiteKit.pageState, oldPageState);
+				
 				// Apply to history
 				if(!dontPush) {
 					history.pushState({}, title, originalURL);
@@ -232,6 +235,43 @@ var SiteKit = {};
 		});
 		
 	};
+	
+	SiteKit.transitionWidgetsIn = function(targetEl, newState, oldState) {
+		
+		targetEl.find("[data-widget]").each(function() {
+			
+			var el = $(this);
+			var widgetName = this.getAttribute('data-widget');
+			
+			var widget = el[widgetName]('instance');
+			
+			if(widget._transitionIn) {
+				widget._transitionIn(newState, oldState);
+			}
+			
+		});
+		
+	};
+	
+	SiteKit.transitionWidgetsOut = function(targetEl, newState, oldState, destroy) {
+		
+		targetEl.find("[data-widget]").each(function() {
+			
+			var el = $(this);
+			var widgetName = this.getAttribute('data-widget');
+			
+			var widget = el[widgetName]('instance');
+			
+			if(widget._transitionOut) {
+				widget._transitionOut(newState, oldState);
+			}
+			
+			if(destroy) {
+				widget.destroy();
+			}
+		});
+		
+	}
 	
 	SiteKit.initXHRPageSystem = function() {
 		
@@ -439,8 +479,15 @@ var SiteKit = {};
 	
 	// Boot up
 	$(function() {
+		
+		var body = $(document.body);
+		
+		SiteKit.pageState = body.children("pagestate").data('state');
+		
 		SiteKit.initWidgets();
 		SiteKit.initXHRPageSystem();
+		
+		SiteKit.transitionWidgetsIn(body, SiteKit.pageState, null);
 	});
 	
 })(jQuery);
