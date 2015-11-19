@@ -47,6 +47,7 @@ var SiteKit = {};
 		},
 		loadImages: true,
 		imageLoadTimeout: 3000,
+		widgetTransitionDelay: 0,
 		swapContent: function(container, originalContent, newContent, direction) {
 			
 			// Fade out old content
@@ -209,15 +210,22 @@ var SiteKit = {};
 				}
 				
 				// Set up links and widgets
-				SiteKit.initWidgets(newContent);
-				SiteKit.handleXHRLinks(newContent);
 				newContent.hide();
+				setTimeout(function() {
+					newContent.show();
+					SiteKit.initWidgets(newContent);
+					SiteKit.handleXHRLinks(newContent);
+					newContent.hide();
+				}, SiteKit.xhrOptions.widgetTransitionDelay);
+				
 				
 				// Perform the swap!
 				SiteKit.xhrOptions.swapContent(SiteKit.XHRPageContainer, oldContent, newContent, dontPush ? "back" : "forward");
 				
 				// Call _transitionIn function for the new widgets
-				SiteKit.transitionWidgetsIn(newContent, SiteKit.pageState, oldPageState);
+				setTimeout(function() {
+					SiteKit.transitionWidgetsIn(newContent, SiteKit.pageState, oldPageState);
+				}, SiteKit.xhrOptions.widgetTransitionDelay);
 				
 				// Apply to history
 				if(!dontPush) {
@@ -263,7 +271,9 @@ var SiteKit = {};
 			var widget = el[widgetName]('instance');
 			
 			if(widget._transitionOut) {
-				widget._transitionOut(newState, oldState);
+				setTimeout(function() {
+					widget._transitionOut(newState, oldState);
+				}, 1);
 			}
 			
 			if(destroy) {
