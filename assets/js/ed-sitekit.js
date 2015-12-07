@@ -98,11 +98,10 @@ var SiteKit = {};
 				return;
 			}
 			
-			$(document.body).trigger("xhrLoadEnd");
 			$(document.body).trigger("xhrTransitioningOut");
 			
 			// Alter the response to keep the body tag
-			response = response.replace(/(\<\/?)body/g, '$1bodyfake');
+			response = response.replace(/(<\/?)body/g, '$1bodyfake');
 			
 			// Convert the text response to DOM structure
 			var result = $("<div>"+response+"</div>");
@@ -120,7 +119,11 @@ var SiteKit = {};
 			// Grab content
 			var newContent = $("<div class='xhr-page-contents'></div>").append(foundPageContainer.children());
 			
+			$(document.body).trigger("xhrLoadMiddle");
+			
 			var finalize = function() {
+				
+				$(document.body).trigger("xhrLoadEnd");
 				
 				// Grab the page title
 				var title = result.find("title").html();
@@ -218,7 +221,6 @@ var SiteKit = {};
 					newContent.hide();
 				}, SiteKit.xhrOptions.widgetTransitionDelay);
 				
-				
 				// Perform the swap!
 				SiteKit.xhrOptions.swapContent(SiteKit.XHRPageContainer, oldContent, newContent, dontPush ? "back" : "forward");
 				
@@ -281,7 +283,7 @@ var SiteKit = {};
 			}
 		});
 		
-	}
+	};
 	
 	SiteKit.initXHRPageSystem = function() {
 		
@@ -469,9 +471,10 @@ var SiteKit = {};
 			// Get images from 'style' attribute of div elements only
 			self.find("div[style]").each(function() {
 				if(this.style.backgroundImage && typeof this.style.backgroundImage == 'string') {
-					var match = this.style.backgroundImage.match(/url\([\'|\"]?(.+)[\'|\"]?\)/);
+					var match = this.style.backgroundImage.match(/url\((.+)\)/);
 					if(match) {
-						images.push(match[1]);
+						var src = match[1].replace(/(^[\'\"]|[\'\"]$)/g, '');
+						images.push(src);
 					}
 				}
 			});
