@@ -25,7 +25,7 @@
 				// Clean the method name
 				$method = trim($match[1], "/");
 				$httpBody = file_get_contents('php://input');
-				$args = json_decode($httpBody, false);
+				$args = json_decode($httpBody, true);
 				
 				// Run the method
 				try {
