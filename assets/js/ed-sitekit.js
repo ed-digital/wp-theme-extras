@@ -323,7 +323,8 @@ var SiteKit = {};
 		
 		targetEl = $(targetEl || document.body);
 		
-		var baseURL = document.baseURI.match(/^[a-z]+[\:\/]+[^\/]+/i)[0];
+		//var baseURL = document.baseURI.match(/^[a-z]+[\:\/]+[^\/]+/i)[0];
+        var baseURL = window.location.origin;
 		
 		targetEl.find("a").each(function() {
 			var linkEl = $(this);
