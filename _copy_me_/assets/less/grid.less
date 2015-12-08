@@ -5,6 +5,11 @@
 		margin-left: @columnGutterWidth;
 		box-sizing: border-box;
 	}
+	.text-col@{suffixStr}-@{iteration} {
+		-webkit-column-count: @iteration;
+		-moz-column-count: @iteration;
+		column-count: @iteration;
+	}
 	._gen-columns(@suffix, @columnWidth, @columnGutterWidth, @iteration + 1);
 }
 
@@ -119,13 +124,13 @@
 	.faux-row-positioned-left {
 		position: absolute;
 		left: 50%;
-		margin-left: -@wrapperWidth/2 - @wrapperPadding;
+		margin-left: -@wrapperWidth/2 - @columnGutterWidth;
 	}
 	
 	.faux-row-positioned-right {
 		position: absolute;
 		right: 50%;
-		margin-right: -@wrapperWidth/2 - @wrapperPadding;
+		margin-right: -@wrapperWidth/2 - @columnGutterWidth;
 	}
 	
 	._gen-row(@suffix, @columnWidth, @columnGutterWidth);
@@ -160,25 +165,25 @@
 	.faux-row-positioned-left-inset {
 		position: absolute;
 		left: 0px;
-		margin-left: unit(@wrapperPadding + @columnGutterWidth, vw);
+		margin-left: unit(@wrapperPadding, vw);
 	}
 	
 	.faux-row-positioned-right-inset {
 		position: absolute;
 		right: 0px;
-		margin-right: unit(@wrapperPadding + @columnGutterWidth, vw);
+		margin-right: unit(@wrapperPadding, vw);
 	}
 	
 	.faux-row-positioned-left {
 		position: absolute;
 		left: 0px;
-		margin-left: unit(@wrapperPadding, vw);
+		margin-left: unit(@wrapperPadding - @columnGutterWidth, vw);
 	}
 	
 	.faux-row-positioned-right {
 		position: absolute;
 		right: 0px;
-		margin-right: unit(@wrapperPadding, vw);
+		margin-right: unit(@wrapperPadding - @columnGutterWidth, vw);
 	}
 	
 	._gen-row(@suffix, unit(@columnWidth, vw), unit(@columnGutterWidth, vw));
