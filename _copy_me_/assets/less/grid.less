@@ -135,13 +135,13 @@
 /* A percentage based grid */
 ._gen-grid(@suffix, @wrapperWidth, @columnGutterWidth, @wrapperPadding) when (ispercentage(@wrapperWidth) = true) {
 
-	@columnWidth: ((@wrapperWidth - ( 12 * @columnGutterWidth)) / 12);
+	@columnWidth: ((@wrapperWidth - @wrapperPadding * 2 - ( 11 * @columnGutterWidth)) / 12);
 	
 	.wrapper {
-		width: unit(@wrapperWidth - @wrapperPadding * 2, vw);
+		width: unit(@wrapperWidth, vw);
 		margin: auto;
-		padding-left: unit(@columnGutterWidth, vw);
-		padding-right: unit(@columnGutterWidth, vw);
+		padding-left: unit(@wrapperPadding, vw);
+		padding-right: unit(@wrapperPadding, vw);
 		box-sizing: border-box;
 		
 		* {
@@ -181,7 +181,7 @@
 		margin-right: unit(@wrapperPadding, vw);
 	}
 	
-	._gen-row(@suffix, @columnWidth, @columnGutterWidth);
+	._gen-row(@suffix, unit(@columnWidth, vw), unit(@columnGutterWidth, vw));
 	
 }
 
