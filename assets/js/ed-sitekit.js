@@ -66,6 +66,9 @@ var SiteKit = {};
 				}
 			});
 			
+		},
+		filterBodyClasses: function(oldClasses, newClasses) {
+			return newClasses;
 		}
 	};
 	
@@ -133,6 +136,7 @@ var SiteKit = {};
 				
 				// Grab the body class
 				var bodyClass = result.find("bodyfake").attr('class');
+				bodyClass = SiteKit.xhrOptions.filterBodyClasses(document.body.className, bodyClass);
 				
 				var oldPageState = SiteKit.pageState;
 				SiteKit.pageState = result.find("pagestate").data('state');
