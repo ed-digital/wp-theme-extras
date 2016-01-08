@@ -1,5 +1,129 @@
-var SiteKit = {};
+var SiteComponents = {};
+var SiteKit = {
+	components: SiteComponents
+};
 (function($) {
+	
+	SiteKit.keyCodes = {
+		BACKSPACE: 8,
+		COMMA: 188,
+		DELETE: 46,
+		DOWN: 40,
+		END: 35,
+		ENTER: 13,
+		ESCAPE: 27,
+		HOME: 36,
+		LEFT: 37,
+		PAGE_DOWN: 34,
+		PAGE_UP: 33,
+		PERIOD: 190,
+		RIGHT: 39,
+		SPACE: 32,
+		TAB: 9,
+		UP: 38
+	};
+	
+	SiteKit.baseWidget = {
+		debounce: function(callback, time, name) {
+			
+			var self = this;
+			
+			name = name || '_';
+			
+			self._scheduledTimers = self._scheduledTimers || {};
+			
+			clearTimeout(this._scheduledTimers[name]);
+			
+			this._scheduledTimers[name] = setTimeout(function() {
+				callback.call(self);
+			}, time);
+			
+		},
+		afterInit: function(callback) {
+			var self = this;
+			$(document).bind('afterWidgetsInit.'+this.uuid, function() {
+				callback.call(self);
+				$(document).unbind('afterWidgetsInit.'+self.uuid);
+			});
+		}
+	};
+	
+	SiteKit.widget = function(name, def) {
+		if(name.indexOf('.') === -1) {
+			name = 'ui.'+name;
+		}
+		$.widget(name, $.extend({}, SiteKit.baseWidget, def));
+	};
+	
+	SiteKit.findWidgets = function(name, el) {
+		var result = [];
+		var widgets = $('[data-widget]', el || document.body).each(function() {
+			var widgetNames = $.data(this, 'widgetNames');
+			if(widgetNames && widgetNames.indexOf(name) != -1) {
+				var instance = $(this)[name]('instance');
+				result.push(instance);
+			}
+		});
+		return result;
+	};
+	
+	SiteKit.findWidget = function(name, el) {
+		var widgets = SiteKit.findWidgets(name, el);
+		if(widgets && widgets.length) {
+			return widgets[0];
+		} else {
+			return null;
+		}
+	};
+	
+	SiteKit.getAllWidgets = function(el) {
+		var result = [];
+		var widgets = $('[data-widget]', el || document.body).each(function() {
+			var widgetNames = $.data(this, 'widgetNames');
+			for(var k in widgetNames) {
+				var instance = $(this)[widgetNames[k]]('instance');
+				result.push(instance);
+			}
+		});
+		return result;
+	};
+	
+	SiteKit.triggerAllWidgets = function(methodName) {
+		
+		var args = Array.prototype.slice.call(arguments, 1);
+		
+		var widgets = SiteKit.getAllWidgets();
+		for(var k in widgets) {
+			var widget = widgets[k];
+			if(widget && methodName in widget) {
+				widget[methodName].apply(widget, args);
+			}
+		}
+		
+	};
+	
+	SiteKit.getWidgetDefs = function(el) {
+		
+		el = $(el);
+		
+		var widgets = (el.attr('data-widget') || el.attr('data-widgets')).split(/\,\s*/g);
+		var isInitialized = el.data('hasBeenInitialized');
+		
+		for(var k in widgets) {
+			
+			var widgetInfo = widgets[k].split('#');
+			
+			widgets[k] = {
+				name: widgetInfo[0],
+				identifier: widgetInfo[1],
+				instance: isInitialized ? el[widgetInfo[0]]('instance') : null
+			};
+			
+		}
+		
+		return widgets;
+		
+	};
 	
 	SiteKit.initWidgets = function(targetEl) {
 		targetEl = $(targetEl || document.body);
@@ -14,30 +138,63 @@ var SiteKit = {};
 			// Only initialize once
 			if(data.hasBeenInitialized) return;
 			
-			// Throw an error if that widget doesn't exist
-			if(data.widget in $.fn === false) {
-				if(data.widgetOptional === true) {
-					return;
-				} else {
-					throw new Error("Could not initialize widget '"+data.widget+"', as no widget with this name has been declared.");
+			// Prepare options
+			var options = {};
+			for(var k in data) {
+				if(k[0] !== "_") {
+					options[k] = data[k];
 				}
+			}
+			
+			var widgets = SiteKit.getWidgetDefs(el);
+			var widgetNames = [];
+			for(var i = 0; i < widgets.length; i++) {
+				
+				var widget = widgets[i];
+				
+				widgetNames.push(widget.name);
+				
+				// Throw an error if that widget doesn't exist
+				if(widget.name in $.fn === false) {
+					if(data.widgetOptional === true) {
+						return;
+					} else {
+						throw new Error("Could not initialize widget '"+widget.name+"', as no widget with this name has been declared.");
+					}
+				}
+				
+				// Spawn the widget, and grab it's instance
+				el[widget.name](options);
+				var instance = el[widget.name]('instance');
+				
+				// Save it to the components object
+				if(widget.identifier) {
+					SiteKit.components[widget.identifier] = instance;
+				}
+			
 			}
 			
 			// Mark as initialized
 			el.data('hasBeenInitialized', true);
-			
-			var args = {};
-			
-			for(var k in data) {
-				if(k[0] !== "_") {
-					args[k] = data[k];
-				}
-			}
-			
-			// Spawn the widget
-			el[data.widget](args);
+			$.data(el[0], 'widgetNames', widgetNames);
 			
 		});
+		
+		$(document).trigger('afterWidgetsInit');
+		
+	};
+	
+	SiteKit.setGlobalState = function(state, reset) {
+		
+		for(var k in SiteKit.components) {
+			var component = SiteKit.components[k];
+			if(component && component.setState) {
+				if(k in state || reset !== false) {
+					console.log("Setting state for", k, state[k] || {});
+					component.setState(state[k] || {});
+				}
+			}
+		}
 		
 	};
 	
@@ -48,6 +205,7 @@ var SiteKit = {};
 		loadImages: true,
 		imageLoadTimeout: 3000,
 		widgetTransitionDelay: 0,
+		cachePages: false,
 		swapContent: function(container, originalContent, newContent, direction) {
 			
 			// Fade out old content
@@ -72,11 +230,28 @@ var SiteKit = {};
 		}
 	};
 	
+	SiteKit.pageCache = {};
+	
 	SiteKit.setupXHR = function(options) {
 		$.extend(SiteKit.xhrOptions, options);
 	};
 	
 	var XHRRequestCounter = 0;
+	
+	SiteKit.getContent = function(url, callback) {
+		
+		if(SiteKit.xhrOptions.cachePages && SiteKit.pageCache[url]) {
+			callback(SiteKit.pageCache[url]);
+		} else {
+			$.get(url, function(response, textStatus) {
+				callback(response, textStatus);
+				if(response && SiteKit.xhrOptions.cachePages) {
+					SiteKit.pageCache[url] = response;
+				}
+			});
+		}
+		
+	};
 	
 	SiteKit.goToURL = function(url, dontPush) {
 		
@@ -95,7 +270,7 @@ var SiteKit = {};
 		
 		$(document.body).trigger("xhrLoadStart");
 		
-		$.get(url, function(response, textStatus) {
+		SiteKit.getContent(url, function(response, textStatus) {
 			if(requestID !== XHRRequestCounter) {
 				// Looks like another request was made after this one, so ignore the response.
 				return;
@@ -237,6 +412,8 @@ var SiteKit = {};
 				if(!dontPush) {
 					history.pushState({}, title, originalURL);
 				}
+				
+				$(document).trigger("xhrPageChanged");
 			
 			};
 			
@@ -255,12 +432,12 @@ var SiteKit = {};
 		targetEl.find("[data-widget]").each(function() {
 			
 			var el = $(this);
-			var widgetName = this.getAttribute('data-widget');
+			var widgets = SiteKit.getWidgetDefs(el);
 			
-			var widget = el[widgetName]('instance');
-			
-			if(widget._transitionIn) {
-				widget._transitionIn(newState, oldState);
+			for(var k in widgets) {
+				if(widgets[k].instance && widgets[k].instance._transitionIn) {
+					widgets[k].instance._transitionIn(newState, oldState);
+				}
 			}
 			
 		});
@@ -272,18 +449,18 @@ var SiteKit = {};
 		targetEl.find("[data-widget]").each(function() {
 			
 			var el = $(this);
-			var widgetName = this.getAttribute('data-widget');
+			var widgets = SiteKit.getWidgetDefs(el);
 			
-			var widget = el[widgetName]('instance');
-			
-			if(widget._transitionOut) {
-				setTimeout(function() {
-					widget._transitionOut(newState, oldState);
-				}, 1);
-			}
-			
-			if(destroy) {
-				widget.destroy();
+			for(var k in widgets) {
+				var widget = widgets[k].instance;
+				if(widget && widget._transitionIn) {
+					setTimeout(function() {
+						widget._transitionOut(newState, oldState);
+					}, 1);
+					if(destroy) {
+						widget.destroy();
+					}
+				}
 			}
 		});
 		
@@ -348,8 +525,11 @@ var SiteKit = {};
 			}
 			
 			linkEl.click(function(e) {
-				e.preventDefault();
-				SiteKit.goToURL(this.href);
+				if(!e.metaKey && !e.ctrlKey) {
+					e.preventDefault();
+					$(document).trigger('xhrLinkClick', [linkEl]);
+					SiteKit.goToURL(this.href);
+				}
 			});
 			
 		});
@@ -494,6 +674,48 @@ var SiteKit = {};
 		SiteKit.preloadImages(images, timeout, callback);
 		
 	};
+	
+	SiteKit.getURLPath = function(input) {
+		var match = input.match(/:\/\/[^\/]+([^#?]*)/);
+		if(match) {
+			return match[1].replace(/\/$/, '');
+		} else {
+			return "";
+		}
+	};
+	
+	// Handle keypresses
+	$(window).on('keydown', function(e) {
+		
+		// Determine if an array key has been pressed
+		var arrowDirection;
+		if(e.keyCode === SiteKit.keyCodes.LEFT) {
+			arrowDirection = 'left';
+		} else if(e.keyCode === SiteKit.keyCodes.RIGHT) {
+			arrowDirection = 'right';
+		} else if(e.keyCode === SiteKit.keyCodes.UP) {
+			arrowDirection = 'up';
+		} else if(e.keyCode === SiteKit.keyCodes.DOWN) {
+			arrowDirection = 'down';
+		}
+		
+		// If so, trigger arrowDown on any widgets with that function
+		if(arrowDirection) {
+			var widgets = SiteKit.getAllWidgets();
+			for(var k in widgets) {
+				var widget = widgets[k];
+				if(widget.arrowDown) {
+					widget.arrowDown(arrowDirection, e);
+				}
+			}
+		}
+		
+		// Also look for ESC
+		if(e.keyCode === SiteKit.keyCodes.ESCAPE) {
+			SiteKit.triggerAllWidgets('escapeDown', e);
+		}
+		
+	});
 	
 	// Boot up
 	$(function() {

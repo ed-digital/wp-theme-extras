@@ -47,7 +47,7 @@
 			return @$this->$prop;
 		}
 		
-		public function executeMain($name, $template) {
+		public function executeMain($__name, $__template) {
 			
 			global $post;
 			
@@ -55,10 +55,10 @@
  			
  			$this->_endCapture = false;
 			
-			include($template);
+			include($__template);
 			
 			if($this->_endCapture == false) {
-	 			$this->content[$name] = ob_get_contents();
+	 			$this->content[$__name] = ob_get_contents();
 	 			ob_end_clean();
 	 		}
 			

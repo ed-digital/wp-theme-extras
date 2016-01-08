@@ -539,6 +539,30 @@
 			EDBreadcrumbs::printBreadcrumbs($options);
 		}
 		
+		public function printDataArgs($args) {
+			
+			foreach($args as $key => $val) {
+				
+				echo " data-".strtolower(preg_replace("/([a-z])([A-Z])/", '$1-$2', $key))."=\"";
+				
+				if($val === null) {
+					//echo "";
+				} else if($val === true) {
+					echo "true";
+				} else if($val === false) {
+					echo "false";
+				} else if(is_string($val) || is_numeric($val)) {
+					echo htmlspecialchars($val);
+				} else {
+					echo htmlspecialchars(json_encode($val));
+				}
+				
+				echo "\"";
+				
+			}
+			
+		}
+		
 	}
 	
 	function dump() {
