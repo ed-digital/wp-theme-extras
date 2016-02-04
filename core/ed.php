@@ -98,21 +98,47 @@
 		
 		public function enqueueFiles() {
 			
-			if(is_admin()) return;
-			
-			// ED Sitekit
-			if($this->config['includeSiteKit'] == true) {
+			if(is_admin()) {
 				
-				$this->addJS("assets/js/ed-sitekit.js", array(
-					"jquery-ui-widget"
-				));
+				// Automatically include all widget and lib files
+				$lessFiles = array_merge(
+					glob($this->themePath."/assets/admin/less/*.less"),
+					glob($this->themePath."/assets/admin/less/*.css")
+				);
+				foreach($lessFiles as $file) {
+					$this->addCSS($this->getURL($file));
+				}
 				
-			}
-			
-			// Automatically include all widget files
-			$widgetFiles = glob($this->themePath."/assets/js/widgets/*.js");
-			foreach($widgetFiles as $file) {
-				$this->addJS($this->getURL($file));
+				// Automatically include all widget and lib files
+				$jsFiles = array_merge(
+					glob($this->themePath."/assets/admin/js/*.js")
+				);
+				foreach($jsFiles as $file) {
+					$this->addJS($this->getURL($file), [
+						"jquery-ui-widget"
+					]);
+				}
+				
+			} else {
+				
+				// ED Sitekit
+				if($this->config['includeSiteKit'] == true) {
+					
+					$this->addJS("assets/js/ed-sitekit.js", array(
+						"jquery-ui-widget"
+					));
+					
+				}
+				
+				// Automatically include all widget and lib files
+				$jsFiles = array_merge(
+					glob($this->themePath."/assets/js/widgets/*.js"),
+					glob($this->themePath."/assets/js/lib/*.js")
+				);
+				foreach($jsFiles as $file) {
+					$this->addJS($this->getURL($file));
+				}
+				
 			}
 			
 		}
@@ -197,7 +223,7 @@
 			
 			foreach($src as $path) {
 				$path = preg_replace("/^([\/]+)/", "", $path);
-				$location = $this->locateFile($path);
+				$location = strpos($path, "http") === 0 ? $path :  $this->locateFile($path);
 				if($location) {
 					wp_enqueue_style(md5($path), $this->getURL($location));
 				}
