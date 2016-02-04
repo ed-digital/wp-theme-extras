@@ -230,26 +230,79 @@ var SiteKit = {
 		}
 	};
 	
-	SiteKit.pageCache = {};
-	
 	SiteKit.setupXHR = function(options) {
 		$.extend(SiteKit.xhrOptions, options);
 	};
 	
 	var XHRRequestCounter = 0;
 	
-	SiteKit.getContent = function(url, callback) {
+	SiteKit.getContent = function(url, callback, isPreload) {
+		
+		console.log("Loading", url);
+		
+		url = url.replace(/\#.+/, '');
+		
+		if(url.indexOf('?') == -1) {
+			url += "?xhr-page=true";
+		} else {
+			url += "&xhr-page=true";
+		}
+		
+		// Mark as preloaded (even if it's not). It won't appear in pageCache until it's been completely loaded. This is just to prevent the page from being preloaded more than once.
+		if(isPreload && SiteKit.preloadedPages[url]) {
+			callback();
+			return;
+		}
+		SiteKit.preloadedPages[url] = true;
 		
 		if(SiteKit.xhrOptions.cachePages && SiteKit.pageCache[url]) {
 			callback(SiteKit.pageCache[url]);
 		} else {
-			$.get(url, function(response, textStatus) {
-				callback(response, textStatus);
-				if(response && SiteKit.xhrOptions.cachePages) {
-					SiteKit.pageCache[url] = response;
+			$.ajax({
+				'url': url,
+				'global': isPreload,
+				'success': function(response, textStatus) {
+					callback(response, textStatus, null);
+					if(response && SiteKit.xhrOptions.cachePages) {
+						SiteKit.pageCache[url] = response;
+					}
+				},
+				'error': function(jqXHR, textStatus, error) {
+					callback(null, textStatus, error);
 				}
 			});
 		}
+		
+	};
+	
+	SiteKit.pageCache = {};
+	SiteKit.preloadedPages = {};
+	
+	SiteKit.pagePreloadQueue = [];
+	SiteKit.isPreloadingPages = false;
+	SiteKit.preloadPages = function() {
+		if(SiteKit.isPreloadingPages) return;
+		SiteKit.isPreloadingPages = true;
+		
+		var loadNext = function() {
+			
+			// Filter out pre-preloaded urls
+			SiteKit.pagePreloadQueue = SiteKit.pagePreloadQueue.filter(function(url) {
+				return SiteKit.preloadedPages[url] ? false : true;
+			});
+			
+			if(SiteKit.pagePreloadQueue.length === 0) {
+				console.log("Nothing left to load");
+				SiteKit.isPreloadingPages = false;
+			} else {
+				var url = SiteKit.pagePreloadQueue.shift();
+				SiteKit.getContent(url, function() {
+					setTimeout(loadNext);
+				}, true);
+			}
+		};
+		
+		loadNext();
 		
 	};
 	
@@ -258,19 +311,13 @@ var SiteKit = {
 		var originalURL = url;
 		var requestID = ++XHRRequestCounter;
 		
-		if(url.indexOf('?') == -1) {
-			url += "?xhr-page=true";
-		} else {
-			url += "&xhr-page=true";
-		}
-		
 		var htmlBody = $("html,body").stop(true).animate({scrollTop: 0}, SiteKit.xhrOptions.scrollAnimation).one('scroll', function() {
 			htmlBody.stop(true);
 		});
 		
 		$(document.body).trigger("xhrLoadStart");
 		
-		SiteKit.getContent(url, function(response, textStatus) {
+		SiteKit.getContent(originalURL, function(response, textStatus) {
 			if(requestID !== XHRRequestCounter) {
 				// Looks like another request was made after this one, so ignore the response.
 				return;
@@ -523,6 +570,9 @@ var SiteKit = {
 				// link contains a hashbang
 				return;
 			}
+			
+			SiteKit.pagePreloadQueue.push(this.href);
+			SiteKit.preloadPages();
 			
 			linkEl.click(function(e) {
 				if(!e.metaKey && !e.ctrlKey) {
