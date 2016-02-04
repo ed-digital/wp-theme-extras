@@ -190,7 +190,6 @@ var SiteKit = {
 			var component = SiteKit.components[k];
 			if(component && component.setState) {
 				if(k in state || reset !== false) {
-					console.log("Setting state for", k, state[k] || {});
 					component.setState(state[k] || {});
 				}
 			}
@@ -237,8 +236,6 @@ var SiteKit = {
 	var XHRRequestCounter = 0;
 	
 	SiteKit.getContent = function(url, callback, isPreload) {
-		
-		console.log("Loading", url);
 		
 		url = url.replace(/\#.+/, '');
 		
@@ -292,7 +289,6 @@ var SiteKit = {
 			});
 			
 			if(SiteKit.pagePreloadQueue.length === 0) {
-				console.log("Nothing left to load");
 				SiteKit.isPreloadingPages = false;
 			} else {
 				var url = SiteKit.pagePreloadQueue.shift();
