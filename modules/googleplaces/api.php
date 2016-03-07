@@ -61,12 +61,12 @@
 		*/
 		public function getOpeningHoursForPlace($args, $isXHR = false) {
 			
-			$cacheKey = md5("getOpeningHoursForPlace:".serialize(func_get_args()));
-			$cachedValue = get_transient($cacheKey);
-			
-			if($cachedValue) {
-				return $cachedValue;
-			}
+			// $cacheKey = md5("getOpeningHoursForPlace:".serialize(func_get_args()));
+			// $cachedValue = get_transient($cacheKey);
+			// 
+			// if($cachedValue) {
+			// 	return $cachedValue;
+			// }
 			
 			if(isset($args['name']) && !isset($args['placeID'])) {
 				$args['placeID'] = $this->getPlaceIDForKeyword(['keyword' => $args['name']]);
@@ -82,108 +82,123 @@
 				return null;
 			}
 			
-			// Index days
-			$days = [];
-			$daysIndex = [];
-			
-			foreach($placeData->opening_hours->periods as $item) {
-				$dayNumber = ($item->open->day+6) % 7;
-				@$daysIndex[$dayNumber] .= $item->open->time."/".$item->close->time;
-				
-				if(isset($days[$dayNumber])) {
-					$days[$dayNumber] = [min($days[$dayNumber][0], $item->open->time), max($days[$dayNumber][1], $item->close->time)];
-				} else {
-					$days[$dayNumber] = [$item->open->time, $item->close->time];
-				}
-			}
-			
-			// Key sort, since they may be out of order
-			ksort($daysIndex);
-			ksort($days);
-			
-			// dump("Index", $daysIndex);
-			// dump("Days", $days);
-			
-			// Compile list of shared days
-			$output = [];
-			$lastVal = null;
-			$sinceDay = null;
-			foreach($daysIndex as $day => $val) {
-				if($lastVal && $lastVal->index === $val) {
-					$lastVal->days[] = $day;
-				} else {
-					// No match
-					if($lastVal) {
-						// Add the previous value first
-						$output[] = $lastVal;
-					}
-					$lastVal = (object)[
-						'days' => [$day],
-						'times' => $days[$day],
-						'index' => $val
-					];
-				}
-			}
-			if($lastVal) {
-				$output[] = $lastVal;
-			}
-			
-			$daysLong = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-			$daysShort = ['Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'];
-			
-			// Add labels
-			foreach($output as $day => $item) {
-				
-				if(count($item->days) == 1) {
-					$item->dayLabel = $daysLong[$item->days[0]];
-					$item->dayLabelShort = $daysShort[$item->days[0]];
-				} else {
-					$item->dayLabel = $daysLong[$item->days[0]]." - ".$daysLong[end($item->days)];
-					$item->dayLabelShort = $daysShort[$item->days[0]]."-".$daysShort[end($item->days)];
-				}
-				
-				$item->timesLabel = $this->formatOpeningTime($item->times[0])." &mdash; ".$this->formatOpeningTime($item->times[1]);
-				$item->timesLabelShort = str_replace(" ", "", $item->timesLabel);
-				
-			}
-			
-			// Determine if open now etc
-			$isOpenNow = false;
-			$isOpenToday = false;
-			$openLabel = "Closed today";
-			date_default_timezone_set("Australia/Canberra");
-			$today = date("N")-1;
-			$currentTime = date("Hi");
-			
-			foreach($output as $item) {
-				
-				if(in_array($today, $item->days)) {
-					// Open today!
-					$isOpenToday = true;
-					// But when?
-					if($currentTime >= $item->times[0] && $currentTime <= $item->times[1]) {
-						// Open now!
-						$isOpenNow = true;
-						$openLabel = "Open till ".$this->formatOpeningTime($item->times[1])." today";
-					} else if($currentTime < $item->times[0]) {
-						$openLabel = "Opens later at ".$this->formatOpeningTime($item->times[0]);
-					} else {
-						$openLabel = "Closed now";
-					}
-				}
-				
-			}
-			
-			$output = (object)[
-				'openToday' => $isOpenToday,
-				'openNow' => $isOpenNow,
-				'openLabel' => $openLabel,
-				'grouped' => $output
+			$outputValue = (object)[
+				'isAlwaysOpen' => false,
+				'openToday' => null,
+				'openNow' => null,
+				'openLabel' => null,
+				'grouped' => null
 			];
 			
-			set_transient($cacheKey, $output, ED()->getModuleSetting("googleplaces", "cacheTime"));
+			if(count($placeData->opening_hours->periods) === 1 && @$placeData->opening_hours->periods[0]->open->time === '0000' && !@$placeData->opening_hours->periods[0]->close) {
+				
+				$outputValue->isAlwaysOpen = true;
+				$outputValue->openLabel = 'Always Open';
+				
+			} else {
+				
+				// Index days
+				$days = [];
+				$daysIndex = [];
+				
+				foreach($placeData->opening_hours->periods as $item) {
+					$dayNumber = ($item->open->day+6) % 7;
+					@$daysIndex[$dayNumber] .= $item->open->time."/".$item->close->time;
+					
+					if(isset($days[$dayNumber])) {
+						$days[$dayNumber] = [min($days[$dayNumber][0], $item->open->time), max($days[$dayNumber][1], $item->close->time)];
+					} else {
+						$days[$dayNumber] = [$item->open->time, $item->close->time];
+					}
+				}
+				
+				// Key sort, since they may be out of order
+				ksort($daysIndex);
+				ksort($days);
+				
+				// dump("Index", $daysIndex);
+				// dump("Days", $days);
+				
+				// Compile list of shared days
+				$output = [];
+				$lastVal = null;
+				$sinceDay = null;
+				foreach($daysIndex as $day => $val) {
+					if($lastVal && $lastVal->index === $val) {
+						$lastVal->days[] = $day;
+					} else {
+						// No match
+						if($lastVal) {
+							// Add the previous value first
+							$output[] = $lastVal;
+						}
+						$lastVal = (object)[
+							'days' => [$day],
+							'times' => $days[$day],
+							'index' => $val
+						];
+					}
+				}
+				if($lastVal) {
+					$output[] = $lastVal;
+				}
+				
+				$daysLong = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+				$daysShort = ['Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'];
+				
+				// Add labels
+				foreach($output as $day => $item) {
+					
+					if(count($item->days) == 1) {
+						$item->dayLabel = $daysLong[$item->days[0]];
+						$item->dayLabelShort = $daysShort[$item->days[0]];
+					} else {
+						$item->dayLabel = $daysLong[$item->days[0]]." - ".$daysLong[end($item->days)];
+						$item->dayLabelShort = $daysShort[$item->days[0]]."-".$daysShort[end($item->days)];
+					}
+					
+					$item->timesLabel = $this->formatOpeningTime($item->times[0])." &mdash; ".$this->formatOpeningTime($item->times[1]);
+					$item->timesLabelShort = str_replace(" ", "", $item->timesLabel);
+					
+				}
+				
+				// Determine if open now etc
+				$isOpenNow = false;
+				$isOpenToday = false;
+				$openLabel = "Closed today";
+				date_default_timezone_set("Australia/Canberra");
+				$today = date("N")-1;
+				$currentTime = date("Hi");
+				
+				foreach($output as $item) {
+					
+					if(in_array($today, $item->days)) {
+						// Open today!
+						$isOpenToday = true;
+						// But when?
+						if($currentTime >= $item->times[0] && $currentTime <= $item->times[1]) {
+							// Open now!
+							$isOpenNow = true;
+							$openLabel = "Open till ".$this->formatOpeningTime($item->times[1])." today";
+						} else if($currentTime < $item->times[0]) {
+							$openLabel = "Opens later at ".$this->formatOpeningTime($item->times[0]);
+						} else {
+							$openLabel = "Closed now";
+						}
+					}
+					
+				}
+				
+				$outputValue->openToday = $isOpenToday;
+				$outputValue->openNow = $isOpenNow;
+				$outputValue->openLabel = $openLabel;
+				$outputValue->grouped = $output;
 			
-			return $output;
+			}
+			
+			set_transient($cacheKey, $outputValue, ED()->getModuleSetting("googleplaces", "cacheTime"));
+			
+			return $outputValue;
 			
 		}
 		
