@@ -61,12 +61,12 @@
 		*/
 		public function getOpeningHoursForPlace($args, $isXHR = false) {
 			
-			// $cacheKey = md5("getOpeningHoursForPlace:".serialize(func_get_args()));
-			// $cachedValue = get_transient($cacheKey);
-			// 
-			// if($cachedValue) {
-			// 	return $cachedValue;
-			// }
+			$cacheKey = md5("getOpeningHoursForPlace:".serialize(func_get_args()));
+			$cachedValue = get_transient($cacheKey);
+			
+			if($cachedValue) {
+				return $cachedValue;
+			}
 			
 			if(isset($args['name']) && !isset($args['placeID'])) {
 				$args['placeID'] = $this->getPlaceIDForKeyword(['keyword' => $args['name']]);
