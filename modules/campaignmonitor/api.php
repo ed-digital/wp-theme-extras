@@ -6,13 +6,12 @@
 	class ED_CampaignMonitor_API extends ED_API {
 		
 		private $_loaded = false;
-		public $twitter = null;
 		
 		public function subscribeToList($args, $isAjax = true) {
 			
 			require_once("createsend-api/csrest_subscribers.php");
 			
-			$listID = $this->getListID($args['list'] ? $args['list'] : "main");
+			$listID = isset($args['listID']) ? $args['listID'] : $this->getListID(isset($args['list']) ? $args['list'] : "main");
 			
 			$wrapper = new CS_REST_Subscribers($listID, array(
 				"api_key" => ED()->getModuleSetting("campaignmonitor", "apiKey")
@@ -20,8 +19,8 @@
 			
 			$result = $wrapper->add(array(
 				"EmailAddress" => $args['email'],
-				"Name" => $args['name'],
-				"CustomFields" => $args['CustomFields']
+				"Name" => isset($args['name']) ? $args['name'] : null,
+				"CustomFields" => isset($args['CustomFields']) ? $args['CustomFields'] : null
 			));
 			
 			if(!$result->was_successful()) {
@@ -39,6 +38,6 @@
 		
 	}
 	
-	ED()->API->addController("campaignmonitor", new ED_CampaignMonitor_API());
+	ED()->API->addController("CampaignMonitor", new ED_CampaignMonitor_API());
 	
 ?>
