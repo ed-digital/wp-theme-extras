@@ -257,7 +257,7 @@ var SiteKit = {
 		} else {
 			$.ajax({
 				'url': url,
-				'global': isPreload,
+				'global': !isPreload,
 				'success': function(response, textStatus) {
 					callback(response, textStatus, null);
 					if(response && SiteKit.xhrOptions.cachePages) {
