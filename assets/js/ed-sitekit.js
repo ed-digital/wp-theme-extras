@@ -307,6 +307,20 @@ var SiteKit = {
 		var originalURL = url;
 		var requestID = ++XHRRequestCounter;
 		
+		// See if any widgets want to intercept this request instead
+		var allWidgets = SiteKit.getAllWidgets();
+		var urlPath = url.match(/:\/\/[^\/]+(.*)/);
+		for(var k in allWidgets) {
+			var widget = allWidgets[k];
+			if(widget['xhrPageWillLoad']) {
+				var result = widget.xhrPageWillLoad(urlPath, url);
+				if(result === false) {
+					history.pushState({}, null, originalURL);
+					return;
+				}
+			}
+		}
+		
 		var htmlBody = $("html,body").stop(true).animate({scrollTop: 0}, SiteKit.xhrOptions.scrollAnimation).one('scroll', function() {
 			htmlBody.stop(true);
 		});
@@ -532,8 +546,13 @@ var SiteKit = {
 		
 		// Handle browser back button
 		window.addEventListener("popstate", function(e) {
-			if(e.state) {
-				SiteKit.goToURL(window.location.href, true);
+			var popped = ('state' in window.history && window.history.state !== null);
+			if(popped) {
+				if(e.state) {
+					SiteKit.goToURL(window.location.href, true);
+				} else {
+					window.location.reload();
+				}
 			}
 		});
 		
