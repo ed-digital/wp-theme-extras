@@ -113,6 +113,18 @@
 	
 }
 
+/* Came up with this hoping it'd work but atm it only works in Firefox grrr..... */
+.gradient-map(@r, @g, @b, @r2:256, @g2:256, @b2:256) {
+	@redStart: @r/256;
+	@greenStart: @g/256;
+	@blueStart: @b/256;
+	@redStop: @r2/256;
+	@greenStop: @g2/256;
+	@blueStop: @b2/256;
+	// filter: url(data:image/svg+xml,%3Csvg%20version%3D%221.1%22%3E%3Cfilter%20id%3D%22filter%22%3E%3CfeColorMatrix%20type%3D%22matrix%22%20values%3D%220.3086%200.6094%200.082%200%200%200.3086%200.6094%200.082%200%200%200.3086%200.6094%200.082%200%200%200%200%200%201%200%22%20result%3D%22gray%22%3E%3C/feColorMatrix%3E%3CfeComponentTransfer%20color-interpolation-filters%3D%22sRGB%22%3E%3CfeFuncR%20type%3D%22table%22%20tableValues%3D%22@{redStart}%20@{redStop}%22%3E%3C/feFuncR%3E%3CfeFuncG%20type%3D%22table%22%20tableValues%3D%22@{greenStart}%20@{greenStop}%22%3E%3C/feFuncG%3E%3CfeFuncB%20type%3D%22table%22%20tableValues%3D%22@{blueStart}%20@{blueStop}%22%3E%3C/feFuncB%3E%3CfeFuncA%20type%3D%22table%22%20tableValues%3D%220%201%22%3E%3C/feFuncA%3E%3C/feComponentTransfer%3E%3C/filter%3E%3C/svg%3E#filter);
+    filter: url('data:image/svg+xml,<filter id="blurFilter2" y="-10" height="40" x="-10" width="150"><feOffset in="SourceAlpha" dx="3" dy="3" result="offset2" /><feGaussianBlur in="offset2" stdDeviation="3"  result="blur2"/><feMerge><feMergeNode in="blur2" /><feMergeNode in="SourceGraphic" /></feMerge</filter>');
+}
+
 .antialias() {
 	-webkit-font-smoothing: antialiased;
 	-moz-font-smoothing: antialiased;

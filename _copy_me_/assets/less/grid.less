@@ -1,8 +1,26 @@
 ._gen-columns(@suffix, @columnWidth, @columnGutterWidth, @iteration: 1) when (@iteration =< 12) {
 	@suffixStr: ~"@{suffix}";
-	.col@{suffixStr}-@{iteration} {
+	.col@{suffixStr}-@{iteration}, .col@{suffixStr}-@{iteration}-breakout-none {
 		width: @columnWidth * @iteration + @columnGutterWidth * (@iteration - 1);
 		margin-left: @columnGutterWidth;
+		margin-right: 0px;
+		box-sizing: border-box;
+	}
+	.col@{suffixStr}-@{iteration}-breakout-left {
+		width: @columnWidth * @iteration + @columnGutterWidth * (@iteration - 1) + @columnGutterWidth;
+		margin-left: 0px;
+		box-sizing: border-box;
+	}
+	.col@{suffixStr}-@{iteration}-breakout-right {
+		width: @columnWidth * @iteration + @columnGutterWidth * (@iteration - 1) + @columnGutterWidth;
+		margin-left: @columnGutterWidth;
+		margin-right: -@columnGutterWidth;
+		box-sizing: border-box;
+	}
+	.col@{suffixStr}-@{iteration}-breakout-both {
+		width: @columnWidth * @iteration + @columnGutterWidth * (@iteration - 1) + @columnGutterWidth * 2;
+		margin-left: 0;
+		margin-right: 0;
 		box-sizing: border-box;
 	}
 	.text-col@{suffixStr}-@{iteration} {
@@ -109,6 +127,12 @@
 		margin: auto;
 	}
 	
+	.faux-row-inset {
+		position: relative;
+		width: @wrapperWidth - @columnGutterWidth * 2;
+		margin: auto;
+	}
+	
 	.faux-row-positioned-left-inset {
 		position: absolute;
 		left: 50%;
@@ -156,9 +180,23 @@
 		}
 	}
 	
+	.grid-gutter-left {
+		left: @columnGutterWidth;
+	}
+	
+	.grid-gutter-right {
+		riught: @columnGutterWidth;
+	}
+	
 	.faux-row {
 		position: relative;
 		width: unit(@wrapperWidth, vw);
+		margin: auto;
+	}
+	
+	.faux-row-inset {
+		position: relative;
+		width: unit(@wrapperWidth - @columnGutterWidth * 2, vw);
 		margin: auto;
 	}
 	
