@@ -78,10 +78,6 @@
 			
 			$placeData = $this->getPlaceByID($args['placeID']);
 			
-			if(!$placeData->opening_hours || !$placeData->opening_hours->periods) {
-				return null;
-			}
-			
 			$outputValue = (object)[
 				'isAlwaysOpen' => false,
 				'openToday' => null,
@@ -90,7 +86,11 @@
 				'grouped' => null
 			];
 			
-			if(count($placeData->opening_hours->periods) === 1 && @$placeData->opening_hours->periods[0]->open->time === '0000' && !@$placeData->opening_hours->periods[0]->close) {
+			if(@!$placeData->opening_hours || @!$placeData->opening_hours->periods) {
+				
+				$outputValue = null;
+			
+			} else if(count($placeData->opening_hours->periods) === 1 && @$placeData->opening_hours->periods[0]->open->time === '0000' && !@$placeData->opening_hours->periods[0]->close) {
 				
 				$outputValue->isAlwaysOpen = true;
 				$outputValue->openLabel = 'Always Open';
