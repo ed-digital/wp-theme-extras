@@ -265,7 +265,7 @@ var SiteKit = {
 					}
 				},
 				'error': function(jqXHR, textStatus, error) {
-					callback(null, textStatus, error);
+					callback(jqXHR.responseText, textStatus, error);
 				}
 			});
 		}
@@ -747,6 +747,25 @@ var SiteKit = {
 		} else {
 			return "";
 		}
+	};
+	
+	SiteKit.resizeToFit = function(width, height, viewportWidth, viewportHeight, cover) {
+		
+		var result = {};
+		
+		if((cover && width/height > viewportWidth/viewportHeight) || (!cover && width/height < viewportWidth/viewportHeight)) {
+			result.width = viewportHeight * width/height;
+			result.height = viewportHeight;
+		} else {
+			result.width = viewportWidth;
+			result.height = viewportWidth * height/width;
+		}
+		
+		result.top = viewportHeight/2 - result.height/2;
+		result.left = viewportWidth/2 - result.width/2;
+		
+		return result;
+		
 	};
 	
 	// Handle keypresses
