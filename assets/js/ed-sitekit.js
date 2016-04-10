@@ -201,6 +201,7 @@ var SiteKit = {
 		scrollAnimation: {
 			duration: 400
 		},
+        xhrEnabled: true,
 		loadImages: true,
 		imageLoadTimeout: 3000,
 		widgetTransitionDelay: 0,
@@ -524,6 +525,8 @@ var SiteKit = {
 	};
 	
 	SiteKit.initXHRPageSystem = function() {
+
+        if(!SiteKit.xhrOptions.xhrEnabled) return;
 		
 		// Grab the page container, if one exists
 		SiteKit.XHRPageContainer = $("[data-page-container]:first");
