@@ -308,6 +308,8 @@ var SiteKit = {
 		var originalURL = url;
 		var requestID = ++XHRRequestCounter;
 		
+		SiteKit.lastURL = url;		
+		
 		// See if any widgets want to intercept this request instead
 		var allWidgets = SiteKit.getAllWidgets();
 		var urlPath = url.match(/:\/\/[^\/]+(.*)/);
