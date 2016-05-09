@@ -217,7 +217,7 @@ var SiteKit = {
 					originalContent.remove();
 					
 					// Fade in new content
-					newContent.fadeIn({
+					newContent.css('display', 'inline').transition({opacity: 1}, {
 						duration: 200
 					});
 					
@@ -331,6 +331,7 @@ var SiteKit = {
 		$(document.body).trigger("xhrLoadStart");
 		
 		SiteKit.getContent(originalURL, function(response, textStatus) {
+			
 			if(requestID !== XHRRequestCounter) {
 				// Looks like another request was made after this one, so ignore the response.
 				return;
@@ -359,8 +360,8 @@ var SiteKit = {
 			
 			$(document.body).trigger("xhrLoadMiddle");
 			
+			
 			var finalize = function() {
-				
 				$(document.body).trigger("xhrLoadEnd");
 				
 				// Grab the page title
@@ -452,13 +453,11 @@ var SiteKit = {
 				}
 				
 				// Set up links and widgets
+				newContent.show();
+				SiteKit.forceResizeWindow();
+				SiteKit.initWidgets(newContent);
+				SiteKit.handleXHRLinks(newContent);
 				newContent.hide();
-				setTimeout(function() {
-					newContent.show();
-					SiteKit.initWidgets(newContent);
-					SiteKit.handleXHRLinks(newContent);
-					newContent.hide();
-				}, SiteKit.xhrOptions.widgetTransitionDelay);
 				
 				// Perform the swap!
 				SiteKit.xhrOptions.swapContent(SiteKit.XHRPageContainer, oldContent, newContent, dontPush ? "back" : "forward");
@@ -652,11 +651,6 @@ var SiteKit = {
 	
 	SiteKit.preloadImages = function(srcs, timeout, callback) {
 		
-		if(srcs.length === 0) {
-			callback();
-			return;
-		}
-		
 		var images = [];
 		
 		var callbackCalled = false;
@@ -666,6 +660,11 @@ var SiteKit = {
 				if(callback) callback();
 			}
 		};
+		
+		if(srcs.length === 0) {
+			triggerCallback();
+			return;
+		}
 		
 		var loaded = function(img) {
 			images.push(img);
@@ -772,6 +771,10 @@ var SiteKit = {
 		return result;
 		
 	};
+	
+	SiteKit.forceResizeWindow = function() {
+		window.resizeTo(window.outerWidth, window.outerHeight);
+	}
 	
 	// Handle keypresses
 	$(window).on('keydown', function(e) {
