@@ -537,10 +537,10 @@
         public function youtubeID($url) {
             // get youtube id from longform or share form youtube url
             preg_match("/v\=([A-Za-z0-9_-]+)/i", 
-              $block->youtube_url, $match);
+              $url, $match);
 
             if(empty($match)) 
-              $videoID = basename(parse_url($block->youtube_url)['path']);
+              $videoID = basename(parse_url($url)['path']);
             else 
               $videoID = $match[1];
 
