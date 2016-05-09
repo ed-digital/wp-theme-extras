@@ -548,7 +548,7 @@
         }
 
         public function youtubeImage($url) {
-            return "http://img.youtube.com/vi/".youtubeID($url)."/maxresdefault.jpg";
+            return "http://img.youtube.com/vi/".$this->youtubeID($url)."/maxresdefault.jpg";
         }
 		
 		public function registerMenu($name, $label) {
