@@ -315,7 +315,7 @@ var SiteKit = {
 		var urlPath = url.match(/:\/\/[^\/]+(.*)/);
 		for(var k in allWidgets) {
 			var widget = allWidgets[k];
-			if(widget['xhrPageWillLoad']) {
+			if(widget.xhrPageWillLoad) {
 				var result = widget.xhrPageWillLoad(urlPath, url);
 				if(result === false) {
 					history.pushState({}, null, originalURL);
@@ -359,7 +359,6 @@ var SiteKit = {
 			var newContent = $("<div class='xhr-page-contents'></div>").append(foundPageContainer.children());
 			
 			$(document.body).trigger("xhrLoadMiddle");
-			
 			
 			var finalize = function() {
 				$(document.body).trigger("xhrLoadEnd");
@@ -452,6 +451,11 @@ var SiteKit = {
 					
 				}
 				
+				// Apply to history
+				if(!dontPush) {
+					history.pushState({}, title, originalURL);
+				}
+				
 				// Set up links and widgets
 				newContent.show();
 				SiteKit.forceResizeWindow();
@@ -466,11 +470,6 @@ var SiteKit = {
 				setTimeout(function() {
 					SiteKit.transitionWidgetsIn(newContent, SiteKit.pageState, oldPageState);
 				}, SiteKit.xhrOptions.widgetTransitionDelay);
-				
-				// Apply to history
-				if(!dontPush) {
-					history.pushState({}, title, originalURL);
-				}
 				
 				$(document).trigger("xhrPageChanged");
 			
