@@ -208,17 +208,24 @@ var SiteKit = {
 		cachePages: false,
 		swapContent: function(container, originalContent, newContent, direction) {
 			
+			var duration = SiteKit.xhrOptions.widgetTransitionDelay || 500;
+			
 			// Fade out old content
 			originalContent.fadeOut({
-				duration: 200,
+				duration: duration/2,
 				complete: function() {
 					
 					// Not forgetting to remove the old content
 					originalContent.remove();
 					
 					// Fade in new content
-					newContent.css('display', 'inline').transition({opacity: 1}, {
-						duration: 200
+					newContent.css({
+						display: inline,
+						opacity: 0
+					}).animate({
+						opacity: 1
+					}, {
+						duration: duration/2
 					});
 					
 				}
@@ -383,9 +390,6 @@ var SiteKit = {
 				var existingScripts = $(document.head).find("script");
 				var existingStylesheets = $(document.head).find("link[rel=stylesheet]");
 				
-				// Destroy existing widgets
-				SiteKit.transitionWidgetsOut(SiteKit.XHRPageContainer, oldPageState, SiteKit.pageState, true);
-				
 				// Swap menus out
 				result.find("ul.menu").each(function() {
 					
@@ -451,27 +455,46 @@ var SiteKit = {
 					
 				}
 				
+				newContent.hide();
+				
 				// Apply to history
 				if(!dontPush) {
 					history.pushState({}, title, originalURL);
 				}
 				
-				// Set up links and widgets
-				newContent.show();
-				SiteKit.forceResizeWindow();
-				SiteKit.initWidgets(newContent);
-				SiteKit.handleXHRLinks(newContent);
-				newContent.hide();
+				// Destroy existing widgets
+				var steps = [
+					function(next) {
+						SiteKit.transitionWidgetsOut(SiteKit.XHRPageContainer, oldPageState, SiteKit.pageState, true, next);
+					},
+					function(next) {
+						// Set up links and widgets
+						newContent.show();
+						SiteKit.forceResizeWindow();
+						SiteKit.initWidgets(newContent);
+						SiteKit.handleXHRLinks(newContent);
+						newContent.hide();
+						
+						// Perform the swap!
+						var delay = SiteKit.xhrOptions.widgetTransitionDelay;
+						delay = SiteKit.xhrOptions.swapContent(SiteKit.XHRPageContainer, oldContent, newContent, dontPush ? "back" : "forward") || delay;
+						setTimeout(next, delay);
+					},
+					function(next) {
+						SiteKit.transitionWidgetsIn(newContent, SiteKit.pageState, oldPageState, next);
+					}
+				];
 				
-				// Perform the swap!
-				SiteKit.xhrOptions.swapContent(SiteKit.XHRPageContainer, oldContent, newContent, dontPush ? "back" : "forward");
+				var stepIndex = 0;
+				var next = function() {
+					if(stepIndex < steps.length) {
+						steps[stepIndex++](next);
+					} else {
+						$(document).trigger("xhrPageChanged");
+					}
+				}
 				
-				// Call _transitionIn function for the new widgets
-				setTimeout(function() {
-					SiteKit.transitionWidgetsIn(newContent, SiteKit.pageState, oldPageState);
-				}, SiteKit.xhrOptions.widgetTransitionDelay);
-				
-				$(document).trigger("xhrPageChanged");
+				next();
 			
 			};
 			
@@ -485,7 +508,10 @@ var SiteKit = {
 		
 	};
 	
-	SiteKit.transitionWidgetsIn = function(targetEl, newState, oldState) {
+	SiteKit.transitionWidgetsIn = function(targetEl, newState, oldState, callback) {
+		
+		var foundTransition = false;
+		var finalDelay = 0;
 		
 		targetEl.find("[data-widget]").each(function() {
 			
@@ -494,15 +520,28 @@ var SiteKit = {
 			
 			for(var k in widgets) {
 				if(widgets[k].instance && widgets[k].instance._transitionIn) {
-					widgets[k].instance._transitionIn(newState, oldState);
+					var delay = widgets[k].instance._transitionIn(newState, oldState, SiteKit.xhrOptions.widgetTransitionDelay);
+					foundTransition = true;
+					finalDelay = Math.max(delay, finalDelay);
 				}
 			}
 			
 		});
 		
+		if(foundTransition && finalDelay) {
+			setTimeout(callback, finalDelay);
+		} else if(foundTransition && !finalDelay) {
+			setTimeout(callback, SiteKit.xhrOptions.widgetTransitionDelay);
+		} else {
+			callback();
+		}
+		
 	};
 	
-	SiteKit.transitionWidgetsOut = function(targetEl, newState, oldState, destroy) {
+	SiteKit.transitionWidgetsOut = function(targetEl, newState, oldState, destroy, callback) {
+		
+		var foundTransition = false;
+		var finalDelay = 0;
 		
 		targetEl.find("[data-widget]").each(function() {
 			
@@ -511,16 +550,24 @@ var SiteKit = {
 			
 			for(var k in widgets) {
 				var widget = widgets[k].instance;
-				if(widget && widget._transitionIn) {
-					setTimeout(function() {
-						widget._transitionOut(newState, oldState);
-					}, 1);
+				if(widget && widget._transitionOut) {
+					foundTransition = true;
+					var delay = widget._transitionOut(newState, oldState, SiteKit.xhrOptions.widgetTransitionDelay);
+					finalDelay = Math.max(delay, finalDelay);
 					if(destroy) {
 						widget.destroy();
 					}
 				}
 			}
 		});
+		
+		if(foundTransition && finalDelay) {
+			setTimeout(callback, finalDelay);
+		} else if(foundTransition && !finalDelay) {
+			setTimeout(callback, SiteKit.xhrOptions.widgetTransitionDelay);
+		} else {
+			callback();
+		}
 		
 	};
 	
@@ -818,7 +865,7 @@ var SiteKit = {
 		SiteKit.initWidgets();
 		SiteKit.initXHRPageSystem();
 		
-		SiteKit.transitionWidgetsIn(body, SiteKit.pageState, null);
+		SiteKit.transitionWidgetsIn(body, SiteKit.pageState, null, function() {});
 	});
 	
 })(jQuery);
