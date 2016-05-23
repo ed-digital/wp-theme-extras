@@ -33,13 +33,17 @@
 			return self::$instance;
 		}
 		
+		public function isPluginGitControlled() {
+			return true;
+		}
+		
 		protected function init() {
 			
 			$this->themeURL = get_stylesheet_directory_uri();
 			$this->themePath = get_stylesheet_directory();
-			$this->edPath = str_replace("/core/", "", plugin_dir_path(__FILE__));
 			$this->sitePath = preg_replace("/\/wp-content\/themes\/[^\/]+$/", "", $this->themePath);
 			$this->siteURL = get_site_url();
+			$this->edPath = $this->sitePath."/wp-content/plugins/ed/";
 			
 			// Load core files
 			$this->loadDir("core", true);
@@ -148,6 +152,7 @@
 			if($file == "ed/edplugin.php") {
 				$meta[] = "<a href='http://ed-wp-plugin.ed.com.au/release/ed-".$data['Version']."-blank-theme.zip'>Download Blank Theme</a>";
 				$meta[] = "<a href='https://bitbucket.org/ed_digital/ed-wp-plugin/wiki/Home'>View Wiki</a>";
+				$meta[] = "Found <code>.git</code> folder, updates disabled!";
 			}
 			
 			return $meta;
