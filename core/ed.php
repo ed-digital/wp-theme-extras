@@ -34,7 +34,7 @@
 		}
 		
 		public function isPluginGitControlled() {
-			return true;
+			return file_exists($this->edPath.".git");
 		}
 		
 		protected function init() {
@@ -152,7 +152,9 @@
 			if($file == "ed/edplugin.php") {
 				$meta[] = "<a href='http://ed-wp-plugin.ed.com.au/release/ed-".$data['Version']."-blank-theme.zip'>Download Blank Theme</a>";
 				$meta[] = "<a href='https://bitbucket.org/ed_digital/ed-wp-plugin/wiki/Home'>View Wiki</a>";
-				$meta[] = "Found <code>.git</code> folder, updates disabled!";
+				if($this->isPluginGitControlled()) {
+					$meta[] = "Found <code>.git</code> folder, updates disabled!";
+				}
 			}
 			
 			return $meta;
