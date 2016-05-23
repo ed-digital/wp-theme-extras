@@ -618,6 +618,7 @@ var SiteKit = {
 		targetEl.find("a").each(function() {
 			var linkEl = $(this);
 			if(linkEl.data('prevent-xhr') || linkEl.data('xhr-event-added')) return;
+			if(linkEl.attr('target')) return;
 			
 			if(linkEl.parents("#wpadminbar").size() || linkEl.parents("[data-prevent-xhr]").size()) return;
 			
