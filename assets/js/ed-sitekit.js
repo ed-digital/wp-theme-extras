@@ -265,6 +265,7 @@ var SiteKit = {
 		} else {
 			$.ajax({
 				'url': url,
+				'async': true,
 				'global': !isPreload,
 				'success': function(response, textStatus) {
 					callback(response, textStatus, null);
@@ -348,6 +349,7 @@ var SiteKit = {
 			
 			// Alter the response to keep the body tag
 			response = response.replace(/(<\/?)body/g, '$1bodyfake');
+			response = response.replace(/(<\/?)head/g, '$1headfake');
 			
 			// Convert the text response to DOM structure
 			var result = $("<div>"+response+"</div>");
@@ -374,7 +376,7 @@ var SiteKit = {
 				var title = result.find("title").html();
 				
 				// Grab any resources
-				var includes = result.find("script, link[rel=stylesheet]");
+				var includes = result.find("headfake").find("script, link[rel=stylesheet]");
 				
 				// Grab the body class
 				var bodyClass = result.find("bodyfake").attr('class');
