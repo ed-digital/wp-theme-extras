@@ -82,7 +82,9 @@ var SiteKit = {
 			var widgetNames = $.data(this, 'widgetNames');
 			for(var k in widgetNames) {
 				var instance = $(this)[widgetNames[k]]('instance');
-				result.push(instance);
+				if(instance) {
+					result.push(instance);
+				}
 			}
 		});
 		return result;
@@ -323,7 +325,7 @@ var SiteKit = {
 		var urlPath = url.match(/:\/\/[^\/]+(.*)/);
 		for(var k in allWidgets) {
 			var widget = allWidgets[k];
-			if(widget.xhrPageWillLoad) {
+			if(widget && widget.xhrPageWillLoad) {
 				var result = widget.xhrPageWillLoad(urlPath, url);
 				if(result === false) {
 					history.pushState({}, null, originalURL);
@@ -336,7 +338,7 @@ var SiteKit = {
 			htmlBody.stop(true);
 		});
 		
-		$(document.body).trigger("xhrLoadStart");
+		$(document).trigger("xhrLoadStart");
 		
 		SiteKit.getContent(originalURL, function(response, textStatus) {
 			
@@ -345,7 +347,7 @@ var SiteKit = {
 				return;
 			}
 			
-			$(document.body).trigger("xhrTransitioningOut");
+			$(document).trigger("xhrTransitioningOut");
 			
 			// Alter the response to keep the body tag
 			response = response.replace(/(<\/?)body/g, '$1bodyfake');
@@ -367,10 +369,10 @@ var SiteKit = {
 			// Grab content
 			var newContent = $("<div class='xhr-page-contents'></div>").append(foundPageContainer.children());
 			
-			$(document.body).trigger("xhrLoadMiddle");
+			$(document).trigger("xhrLoadMiddle");
 			
 			var finalize = function() {
-				$(document.body).trigger("xhrLoadEnd");
+				$(document).trigger("xhrLoadEnd");
 				
 				// Grab the page title
 				var title = result.find("title").html();
@@ -823,7 +825,7 @@ var SiteKit = {
 	
 	SiteKit.forceResizeWindow = function() {
 		window.resizeTo(window.outerWidth, window.outerHeight);
-	}
+	};
 	
 	// Handle keypresses
 	$(window).on('keydown', function(e) {
