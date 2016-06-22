@@ -49,8 +49,8 @@ class WPLessPlugin extends WPPluginToolkitPlugin
         }
         
         $this->compiler = new WPLessCompiler;
-        $this->compiler->setVariable('stylesheet_directory_uri', "'" . get_stylesheet_directory_uri() . "'");
-        $this->compiler->setVariable('template_directory_uri', "'" . get_template_directory_uri() . "'");
+        $this->compiler->setVariable('stylesheet_directory_uri', "'" . parse_url(get_stylesheet_directory_uri())['path'] . "'");
+        $this->compiler->setVariable('template_directory_uri', "'" . parse_url(get_template_directory_uri())['path'] . "'");
     }
     
     /**
@@ -241,7 +241,7 @@ class WPLessPlugin extends WPPluginToolkitPlugin
 
         $wp_styles = $this->getStyles();
         $stylesheet = new WPLessStylesheet($wp_styles->registered[$handle], $this->getCompiler()->getVariables());
-
+        
         if ($this->configuration->getCompilationStrategy() === 'legacy' && $stylesheet->hasToCompile()) {
             $this->getCompiler()->saveStylesheet($stylesheet);
         } elseif ($this->configuration->getCompilationStrategy() !== 'legacy') {
