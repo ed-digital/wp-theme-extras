@@ -58,11 +58,13 @@
 		public function getRecent($args, $isAjax = false) {
 			if($isAjax) throw new Exception("This method cannot be called via XHR.");
 			
-			if(@$args['screen_name'] && !@$args['user_id']) {
-				$args['user_id'] = $this->getUserFromScreenName($args['screen_name'])->id;
-			}
+            // instagram access_token links to account 
+			/* if(@$args['screen_name'] && !@$args['user_id']) { */
+			/* 	$args['user_id'] = $this->getUserFromScreenName($args['screen_name'])->id; */
+			/* } */
 			
-			$url = 'https://api.instagram.com/v1/users/'.$args['user_id'].'/media/recent?client_id='.$this->settings['tokens']['client_id'];
+			/* $url = 'https://api.instagram.com/v1/users/'.$args['user_id'].'/media/recent?client_id='.$this->settings['tokens']['client_id']; */
+			$url = 'https://api.instagram.com/v1/users/self/media/recent/?access_token='.ED()->getModuleSetting('instagram')['tokens']['access_token'];
 			$cacheKey = md5($url);
 			
 			if($cached = get_transient($cacheKey)) {
