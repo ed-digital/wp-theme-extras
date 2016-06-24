@@ -95,7 +95,7 @@ function relative_url() {
     'get_locale_stylesheet_uri',
     'script_loader_src', // plugin scripts url
     'style_loader_src', // plugin styles url
-    'get_theme_root_uri'
+    'get_theme_root_uri',
     'home_url'
   );
 
