@@ -161,7 +161,9 @@ var SiteKit = {
 					if(data.widgetOptional === true) {
 						return;
 					} else {
-						throw new Error("Could not initialize widget '"+widget.name+"', as no widget with this name has been declared.");
+						if(console && console.error) {
+							console.error("Could not initialize widget '"+widget.name+"', as no widget with this name has been declared.");
+						}
 					}
 				}
 				

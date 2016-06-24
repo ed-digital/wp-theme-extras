@@ -86,17 +86,17 @@ function relative_url() {
     'wp_logout_url',
     'wp_lostpassword_url',
     'get_stylesheet_uri',
-    // 'get_stylesheet_directory_uri',
-    // 'plugins_url',
-    // 'plugin_dir_url',
-    // 'stylesheet_directory_uri',
-    // 'get_template_directory_uri',
-    // 'template_directory_uri',
+    'get_stylesheet_directory_uri',
+    'plugins_url',
+    'plugin_dir_url',
+    'stylesheet_directory_uri',
+    'get_template_directory_uri',
+    'template_directory_uri',
     'get_locale_stylesheet_uri',
     'script_loader_src', // plugin scripts url
     'style_loader_src', // plugin styles url
     'get_theme_root_uri'
-    // 'home_url'
+    'home_url'
   );
 
   // Thanks to https://wordpress.org/support/topic/request-only-replace-local-urls
