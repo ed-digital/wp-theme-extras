@@ -18,6 +18,8 @@ include_once(__dir__."/lib/wp-less/bootstrap.php");
 
 // load underscore.php
 include_once(__dir__."/lib/underscore.php");
+Underscore::noConflict("_");
+Underscore::noConflict("___");
 
 // Load relative URL sub-plugin
 include_once(__dir__."/lib/relative-url/relative-url.php");
