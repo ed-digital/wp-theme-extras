@@ -24,6 +24,14 @@ Underscore::noConflict("___");
 // Load relative URL sub-plugin
 include_once(__dir__."/lib/relative-url/relative-url.php");
 
+// Ignore notices, unless they're in the theme dir.
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+  if($errno & E_NOTICE === 0 || strpos($errfile, WP_CONTENT_DIR) === 0) {
+    // Not a notice, or inside wp-content directory.
+    return false;
+  }
+});
+
 if(ED()->isPluginGitControlled() === false) {
 	require_once("plugin-update-checker/plugin-update-checker.php");
 	$myUpdateChecker = PucFactory::buildUpdateChecker('http://ed-wp-plugin.ed.com.au/info.json', __FILE__, "ed", 0);
