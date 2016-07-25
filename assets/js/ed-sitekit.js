@@ -163,6 +163,7 @@ var SiteKit = {
 					} else {
 						if(console && console.error) {
 							console.error("Could not initialize widget '"+widget.name+"', as no widget with this name has been declared.");
+              return;
 						}
 					}
 				}
