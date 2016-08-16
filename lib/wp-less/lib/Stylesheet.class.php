@@ -144,7 +144,7 @@ class WPLessStylesheet
    */
   public function getSourceUri()
   {
-    return $this->source_uri;
+    return parse_url($this->source_uri, PHP_URL_PATH);
   }
 
   /**
