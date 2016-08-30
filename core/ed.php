@@ -20,7 +20,8 @@
 		public $config = array(
 			"useBase" => true,
 			"includeSiteKit" => true,
-			"disableAdminBar" => false
+			"disableAdminBar" => false,
+      "autoloadIncludeJS" => true
 		);
 		
 		protected function __construct() { }
@@ -135,13 +136,15 @@
 				}
 				
 				// Automatically include all widget and lib files
-				$jsFiles = array_merge(
-					glob($this->themePath."/assets/js/widgets/*.js"),
-					glob($this->themePath."/assets/js/lib/*.js")
-				);
-				foreach($jsFiles as $file) {
-					$this->addJS($this->getURL($file));
-				}
+        if($this->config['autoloadIncludeJS'] == true) {
+  				$jsFiles = array_merge(
+  					glob($this->themePath."/assets/js/widgets/*.js"),
+  					glob($this->themePath."/assets/js/lib/*.js")
+  				);
+  				foreach($jsFiles as $file) {
+  					$this->addJS($this->getURL($file));
+  				}
+        }
 				
 			}
 			

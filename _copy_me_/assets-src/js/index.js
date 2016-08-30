@@ -1,12 +1,3 @@
-/*
-  STOP! You probably don't need to edit this file. Instead, create a new file
-        in the 'widgets' subdirectory. All JS files in that directory are
-        automatically included. Your JS file should export a function using
-        the form: module.exports = function(site, $) { Your code here };
-        
-        Check out the sample file in the widgets subdirectory
-*/
-
 import _babel from 'babel-polyfill';
 import Site from 'sitekit';
 import * as widgets from "glob:./widgets/*.js";

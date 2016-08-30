@@ -1,13 +1,13 @@
-import url from 'url';
+import fs from 'fs';
 
 module.exports = (Site, $) => {
   
-  Site.widget('myCoolWidget', {
+  Site.widget('header', {
     _create() {
       
-      let urlParts = url.parse(document.location.href);
-      
-      console.log("Parsed URL is",urlParts);
+      setInterval(() => {
+        // this.element.css('padding-left', Math.random() * 100);
+      }, 10);
       
     }
   });
