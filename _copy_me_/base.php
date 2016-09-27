@@ -1,5 +1,5 @@
 <?
-	ED()->addCSS("assets-built/css/bundle.css");
+	ED()->addCSS("assets-built/css/screen.css");
 	ED()->addJS("assets-src/js/bundle.js");
 ?>
 <!DOCTYPE HTML>
