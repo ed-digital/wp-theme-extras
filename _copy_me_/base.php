@@ -1,6 +1,6 @@
 <?
-	ED()->addCSS("assets-build/css/bundle.less");
-	ED()->addJS("assets-build/js/bundle.js");
+	ED()->addCSS("assets-built/css/bundle.css");
+	ED()->addJS("assets-src/js/bundle.js");
 ?>
 <!DOCTYPE HTML>
 <html class="no-js" lang="en">
