@@ -85,7 +85,12 @@
 			add_action('admin_notices', array($this, '_showPluginWarnings'));
 			
 			add_filter('plugin_row_meta', array($this, "addPluginLinks"), 0, 4);
-			
+
+            if($this->config["useRelativeURLs"] == true) {
+              // Load relative URL sub-plugin
+              include_once(__dir__."/lib/relative-url/relative-url.php");
+            }
+
 		}
 		
 		public function wpInit() {

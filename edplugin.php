@@ -21,9 +21,6 @@ include_once(__dir__."/lib/underscore.php");
 Underscore::noConflict("_");
 Underscore::noConflict("___");
 
-// Load relative URL sub-plugin
-include_once(__dir__."/lib/relative-url/relative-url.php");
-
 // Ignore notices, unless they're in the theme dir.
 set_error_handler(function($errno, $errstr, $errfile, $errline) {
   if($errno & E_NOTICE === 0 || strpos($errfile, WP_CONTENT_DIR) === 0) {
