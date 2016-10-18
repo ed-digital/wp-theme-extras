@@ -1,8 +1,9 @@
 <?
-	 
+	
 	ED()->setConfig([
 		"useBase" => true,
-		"includeSiteKit" => false
+		"includeSiteKit" => false,
+		"useRelativeURLs" => true
 	]);
 	
 	/* Install Instagram and Twitter modules */
@@ -20,7 +21,7 @@
 	
 	ED()->registerMenu("main", "Main Header Menu");
 	
-	// Large sizes
+	// Image Sizes
 	add_image_size("full-size", 1400, 1000, false);
 	
 ?>
