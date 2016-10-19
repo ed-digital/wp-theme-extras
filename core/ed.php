@@ -89,7 +89,7 @@
 
       if($this->config["useRelativeURLs"] == true) {
         // Load relative URL sub-plugin
-        include_once(__dir__."/lib/relative-url/relative-url.php");
+        include_once(__dir__."/../lib/relative-url/relative-url.php");
       }
     }
     
