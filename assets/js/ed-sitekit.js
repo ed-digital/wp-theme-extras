@@ -206,11 +206,14 @@ var SiteKit = {
 		scrollAnimation: {
 			duration: 400
 		},
-        xhrEnabled: true,
+    xhrEnabled: true,
 		loadImages: true,
 		imageLoadTimeout: 3000,
 		widgetTransitionDelay: 0,
 		cachePages: false,
+		swapMenu: function(oldMenu, newMenu) {
+			oldMenu.html(newMenu.html());
+		},
 		swapContent: function(container, originalContent, newContent, direction) {
 			
 			var duration = SiteKit.xhrOptions.widgetTransitionDelay || 500;
@@ -400,8 +403,11 @@ var SiteKit = {
 				// Swap menus out
 				result.find("ul.menu").each(function() {
 					
+					var newMenu = $(this);
 					var id = this.getAttribute('id');
-					var el = $('#'+id).html(this.innerHTML);
+					var oldMenu = $('#'+id);
+					
+					SiteKit.xhrOptions.swapMenu(el, newMenu);
 					SiteKit.handleXHRLinks(el);
 					
 				});
@@ -499,7 +505,7 @@ var SiteKit = {
 					} else {
 						$(document).trigger("xhrPageChanged");
 					}
-				}
+				};
 				
 				next();
 			
