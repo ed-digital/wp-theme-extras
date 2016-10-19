@@ -407,8 +407,9 @@ var SiteKit = {
 					var id = this.getAttribute('id');
 					var oldMenu = $('#'+id);
 					
-					SiteKit.xhrOptions.swapMenu(el, newMenu);
-					SiteKit.handleXHRLinks(el);
+					SiteKit.xhrOptions.swapMenu(oldMenu, newMenu);
+					SiteKit.handleXHRLinks(oldMenu);
+					SiteKit.handleXHRLinks(newMenu);
 					
 				});
 				
