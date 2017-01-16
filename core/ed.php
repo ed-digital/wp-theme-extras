@@ -255,7 +255,7 @@
       foreach($src as $path) {
         $url = null;
         $path = preg_replace("/^([\/]+)/", "", $path);
-        if(strpos($path, "http://") === 0) {
+        if(strpos($path, "http") === 0) {
           $url = $path;
         } else {
           $location = $this->locateFile($path);
