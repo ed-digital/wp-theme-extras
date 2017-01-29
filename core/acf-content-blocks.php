@@ -63,9 +63,23 @@
 			include_once("fields/content-blocks.php");
 		}
 		
+		function getPostContent() {
+			return 'a:8:{s:8:"location";a:1:{i:0;a:1:{i:0;a:3:{s:5:"param";s:9:"post_type";s:8:"operator";s:2:"==";s:5:"value";s:4:"none";}}}s:8:"position";s:6:"normal";s:5:"style";s:7:"default";s:15:"label_placement";s:3:"top";s:21:"instruction_placement";s:5:"label";s:14:"hide_on_screen";s:0:"";s:11:"description";s:0:"";s:29:"original_import_modified_date";N;}';
+		}
+		
 		function ensureFieldsPostExists() {
 			
-			if($this->getFieldsPost() == null) {
+			global $wpdb;
+			
+			$fieldsPost = $this->getFieldsPost();
+			
+			if($fieldsPost->post_title == 'Shared Content Blocks') {
+				// dump($wpdb->prepare("UPDATE $wpdb->posts SET post_content = %s, post_title = %s WHERE ID = ".$fieldsPost->ID, $this->getPostContent(), 'Shared Content Types'));
+				// die();
+				$wpdb->query($wpdb->prepare("UPDATE $wpdb->posts SET post_content = %s, post_title = %s WHERE ID = ".$fieldsPost->ID, $this->getPostContent(), 'Shared Content Types'));
+			}
+			
+			if($fieldsPost == null) {
 				
 				// Add field group
 				$postID = wp_insert_post([
@@ -73,14 +87,14 @@
 					'post_title' => 'Shared Content Blocks',
 					'post_name' => 'group_sharedblocks',
 					'post_status' => 'publish',
-					'post_content' => 'a:8:{s:8:"location";a:1:{i:0;a:1:{i:0;a:3:{s:5:"param";s:9:"post_type";s:8:"operator";s:2:"==";s:5:"value";s:4:"post";}}}s:8:"position";s:6:"normal";s:5:"style";s:7:"default";s:15:"label_placement";s:3:"top";s:21:"instruction_placement";s:5:"label";s:14:"hide_on_screen";s:0:"";s:11:"description";s:0:"";s:29:"original_import_modified_date";N;}',
+					'post_content' => $this->getPostContent(),
 					'post_type' => 'acf-field-group'
 				]);
 				
 				// Add flexible content field
 				wp_insert_post([
 					'post_author' => 0,
-					'post_content' => 'a:9:{s:4:"type";s:16:"flexible_content";s:12:"instructions";s:0:"";s:8:"required";i:0;s:17:"conditional_logic";i:0;s:7:"wrapper";a:3:{s:5:"width";s:0:"";s:5:"class";s:0:"";s:2:"id";s:0:"";}s:12:"button_label";s:7:"Add Row";s:3:"min";s:0:"";s:3:"max";s:0:"";s:7:"layouts";a:1:{i:0;a:6:{s:3:"key";s:13:"56f0a62d2dfe2";s:5:"label";s:0:"";s:4:"name";s:0:"";s:7:"display";s:5:"block";s:3:"min";s:0:"";s:3:"max";s:0:"";}}}',
+					'post_content' => $postContent,
 					'post_title' => 'Content Block Types',
 					'post_excerpt' => 'block_types',
 					'post_name' => 'field_blocks',
