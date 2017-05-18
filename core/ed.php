@@ -230,7 +230,7 @@
       
     }
     
-    public function addCSS($src) {
+    public function addCSS($src, $append = "") {
       
       if(is_string($src)) {
         $src = array($src);
@@ -240,13 +240,13 @@
         $path = preg_replace("/^([\/]+)/", "", $path);
         $location = strpos($path, "http") === 0 ? $path :  $this->locateFile($path);
         if($location) {
-          wp_enqueue_style(md5($path), $this->getURL($location));
+          wp_enqueue_style(md5($path), $this->getURL($location).$append);
         }
       }
       
     }
     
-    public function addJS($src, $deps = array()) {
+    public function addJS($src, $deps = array(), $append = "") {
       
       if(is_string($src)) {
         $src = array($src);
@@ -264,7 +264,7 @@
           }
         }
         if($url) {
-          @wp_enqueue_script(md5($path), $url, $deps);
+          @wp_enqueue_script(md5($path), $url . $append, $deps);
         }
       }
       
@@ -534,7 +534,7 @@
                     break;
                 case 'twitter':
                 case 'tw':
-                    return 'http://twitter.com/home/?status='.get_the_title().' - '.get_permalink(); 
+                    return 'http://twitter.com/home/?status='.get_the_title().' - '.get_permalink();
                     break;
                 case 'linkedin':
                 case 'in':
@@ -551,12 +551,12 @@
 
         public function youtubeID($url) {
             // get youtube id from longform or share form youtube url
-            preg_match("/v\=([A-Za-z0-9_-]+)/i", 
+            preg_match("/v\=([A-Za-z0-9_-]+)/i",
               $url, $match);
 
-            if(empty($match)) 
+            if(empty($match))
               $videoID = basename(parse_url($url)['path']);
-            else 
+            else
               $videoID = $match[1];
 
             return $videoID;

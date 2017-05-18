@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__.'/../../vendor/autoload.php';
-require_once __DIR__.'/../../vendor/lastcraft/simpletest/autorun.php';
+require_once __DIR__.'/../../vendor/simpletest/simpletest/autorun.php';
 require_once '../class/transport.php';
 require_once '../class/log.php';
 
@@ -26,7 +26,7 @@ class CS_REST_TestSocketTransport extends UnitTestCase {
 
         $this->transport = new CS_REST_SocketTransport($this->mock_log, $this->mock_wrapper);
         $this->partial = new PartialSocketTransport($this);
-        $this->partial->CS_REST_SocketTransport($this->mock_log, $this->mock_wrapper);
+        $this->partial->__construct($this->mock_log, $this->mock_wrapper);
     }
 
     function test_make_call_http() {
