@@ -7,8 +7,19 @@
 	<head>
 		<title><? bloginfo( 'name' ); ?><? wp_title( '|' ); ?></title>
 		<meta charset="<? bloginfo( 'charset' ); ?>" />
-	  	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!-- <meta name="theme-color" content="#000000"> -->
+		<meta property="og:site_name" content="<?=get_bloginfo('name')?>" />
+		<meta property="og:title" content="<? bloginfo( 'name' ); ?><? wp_title( '|' ); ?>">
+		<meta property="og:url" content="<?=ED()->siteURL.$_SERVER['REQUEST_URI']?>">
+		<meta property="og:type" content="article">
+		<!-- <meta property="fb:app_id" content=""> -->
+		<!-- <meta property="og:image" content="<?=ED()->themeURL?>/ograph-img.png">
+		<meta property="og:image:width" content="1200">
+		<meta property="og:image:height" content="630"> -->
+		<meta property="og:description" content="<?=get_field('meta_description')?>">
+		<meta name="description" content="<?=get_field('meta_description')?>">
 		<link rel="pingback" href="<? bloginfo( 'pingback_url' ); ?>" />
 		<link rel="shortcut icon" href="<?= get_stylesheet_directory_uri(); ?>/favicon.png"/>
 		<? wp_head(); ?>

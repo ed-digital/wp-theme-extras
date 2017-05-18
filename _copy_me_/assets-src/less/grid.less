@@ -1,4 +1,4 @@
-._gen-columns(@suffix, @columnWidth, @columnGutterWidth, @iteration: 1) when (@iteration =< 12) {
+._gen-columns(@suffix, @columnWidth, @columnGutterWidth, @wrapperPaddingWidth, @iteration: 1) when (@iteration =< 12) {
   @suffixStr: ~"@{suffix}";
   .col@{suffixStr}-@{iteration}, .col@{suffixStr}-@{iteration}-breakout-none {
     width: @columnWidth * @iteration + @columnGutterWidth * (@iteration - 1);
@@ -10,14 +10,13 @@
     height: @columnWidth * @iteration + @columnGutterWidth * (@iteration - 1);
   }
   .col@{suffixStr}-@{iteration}-breakout-left {
-    width: @columnWidth * @iteration + @columnGutterWidth * (@iteration - 1) + @columnGutterWidth;
-    margin-left: 0px;
+    width: @columnWidth * @iteration + @columnGutterWidth * (@iteration - 1) + @wrapperPaddingWidth;
+    margin-left: -@wrapperPaddingWidth;
     box-sizing: border-box;
   }
   .col@{suffixStr}-@{iteration}-breakout-right {
-    width: @columnWidth * @iteration + @columnGutterWidth * (@iteration - 1) + @columnGutterWidth;
-    margin-left: @columnGutterWidth;
-    margin-right: -@columnGutterWidth;
+    width: @columnWidth * @iteration + @columnGutterWidth * (@iteration - 1) + @wrapperPaddingWidth;
+    margin-right: -@wrapperPaddingWidth;
     box-sizing: border-box;
   }
   .col@{suffixStr}-@{iteration}-breakout-both {
@@ -31,27 +30,27 @@
     -moz-column-count: @iteration;
     column-count: @iteration;
   }
-  ._gen-columns(@suffix, @columnWidth, @columnGutterWidth, @iteration + 1);
+  ._gen-columns(@suffix, @columnWidth, @columnGutterWidth, @wrapperPaddingWidth, @iteration + 1);
 }
 
-._gen-columns-push(@suffix, @columnWidth, @columnGutterWidth, @iteration: 0) when (@iteration =< 12) {
+._gen-columns-push(@suffix, @columnWidth, @columnGutterWidth, @wrapperPaddingWidth, @iteration: 0) when (@iteration =< 12) {
   @suffixStr: ~"@{suffix}";
   .col@{suffixStr}-push-@{iteration} {
     left: @columnWidth * @iteration + @columnGutterWidth * @iteration;
   }
-  ._gen-columns-push(@suffix, @columnWidth, @columnGutterWidth, @iteration + 1);
+  ._gen-columns-push(@suffix, @columnWidth, @columnGutterWidth, @wrapperPaddingWidth, @iteration + 1);
 }
 
-._gen-columns-pull(@suffix, @columnWidth, @columnGutterWidth, @iteration: 0) when (@iteration =< 12) {
+._gen-columns-pull(@suffix, @columnWidth, @columnGutterWidth, @wrapperPaddingWidth, @iteration: 0) when (@iteration =< 12) {
   @suffixStr: ~"@{suffix}";
   .col@{suffixStr}-pull-@{iteration} {
     left: -(@columnWidth * @iteration + @columnGutterWidth * @iteration);
   }
-  ._gen-columns-pull(@suffix, @columnWidth, @columnGutterWidth, @iteration + 1);
+  ._gen-columns-pull(@suffix, @columnWidth, @columnGutterWidth, @wrapperPaddingWidth, @iteration + 1);
 }
 
 /* Generate the row class plus column def */
-._gen-row(@suffix, @columnWidth, @columnGutterWidth) {
+._gen-row(@suffix, @columnWidth, @columnGutterWidth, @wrapperPaddingWidth) {
   @suffixStr: ~"@{suffix}";
   .row {
     clear: both;
@@ -94,9 +93,9 @@
     
   }
     
-  ._gen-columns(@suffix, @columnWidth, @columnGutterWidth);
-  ._gen-columns-push(@suffix, @columnWidth, @columnGutterWidth);
-  ._gen-columns-pull(@suffix, @columnWidth, @columnGutterWidth);
+  ._gen-columns(@suffix, @columnWidth, @columnGutterWidth, @wrapperPaddingWidth);
+  ._gen-columns-push(@suffix, @columnWidth, @columnGutterWidth, @wrapperPaddingWidth);
+  ._gen-columns-pull(@suffix, @columnWidth, @columnGutterWidth, @wrapperPaddingWidth);
 }
 
 * {
@@ -160,7 +159,7 @@
     margin-right: -@wrapperWidth/2 - @columnGutterWidth;
   }
   
-  ._gen-row(@suffix, @columnWidth, @columnGutterWidth);
+  ._gen-row(@suffix, @columnWidth, @columnGutterWidth, @wrapperPadding);
   
 }
 
@@ -227,7 +226,7 @@
     margin-right: unit(@wrapperPadding - @columnGutterWidth, vw);
   }
   
-  ._gen-row(@suffix, unit(@columnWidth, vw), unit(@columnGutterWidth, vw));
+  ._gen-row(@suffix, unit(@columnWidth, vw), unit(@columnGutterWidth, vw), unit(@wrapperPadding, vw));
   
 }
 

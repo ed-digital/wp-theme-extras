@@ -1,4 +1,4 @@
-import fs from 'fs';
+// import fs from 'fs';
 
 module.exports = (Site, $) => {
   
@@ -61,7 +61,7 @@ module.exports = (Site, $) => {
               complete: () => {
                 this.disabled = false;
               }
-            });  
+            });
           
         }
       });

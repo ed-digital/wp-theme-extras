@@ -18,12 +18,19 @@
 	background-image: linear-gradient(top, @startColor, @endColor);
 }
 
+.placeholder-color(@color) {
+  &::placeholder {color:@color}
+  &::-webkit-input-placeholder {color:@color}
+  &::-moz-placeholder {color:@color}
+  &:-ms-input-placeholder {color:@color}
+}
+
 .transition-raw(@transition) {
-    -webkit-transition: @transition;
-    -moz-transition: @transition;
-    -o-transition: @transition;
-    -ms-transition: @transition;
-    transition: @transition;
+  -webkit-transition: @transition;
+  -moz-transition: @transition;
+  -o-transition: @transition;
+  -ms-transition: @transition;
+  transition: @transition;
 }
 
 .transition-delay(@delay) {
@@ -64,52 +71,52 @@
 		display: block;
 		position: absolute;
 		width: @size;
-		height: 3px;
+		height: @rungSize;
 		.transition(all, 250ms, ease-in-out);
 	}
 	
 	span {
 		top: @size/2 - @rungSize/2;
-		background: black;
+		background: currentColor;
 	}
 	
 	&:before {
 		top: 0px;
-		background: black;
+		background: currentColor;
 	}
 	
 	&:after {
 		top: @size - @rungSize;
-		background: black;
+		background: currentColor;
 	}
 	
-	&.active {
-        
-        span {
-        	opacity: 0;
-        }
-        
+	&.active, .nav-active & {
+    
+    span {
+    	opacity: 0;
+    }
+    
 		&:after {
 			.rotate(-45deg);
-            top: @size/2 - @rungSize/2;
+      top: @size/2 - @rungSize/2;
 		}
 		&:before {
 			.rotate(45deg);
-            top: @size/2 - @rungSize/2;
+      top: @size/2 - @rungSize/2;
 		}
 	}
     
-    &.black {
-        span, &:before, &:after {
-            background: black;
-        }
+  &.black {
+    span, &:before, &:after {
+      background: black;
     }
-    
-    &.white {
-        span, &:before, &:after {
-            background: white;
-        }
+  }
+  
+  &.white {
+    span, &:before, &:after {
+      background: white;
     }
+  }
 	
 }
 
@@ -127,7 +134,7 @@
 
 .antialias() {
 	-webkit-font-smoothing: antialiased;
-	-moz-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 	-ms-font-smoothing: antialiased;
 }
 
@@ -186,33 +193,33 @@
 }
 
 .triangle-up(@size, @color) {
-	width: 0; 
-	height: 0; 
+	width: 0;
+	height: 0;
 	border-left: @size solid transparent;
 	border-right: @size solid transparent;
 	border-bottom: @size solid @color;
 }
 
 .triangle-down(@size, @color) {
-	width: 0; 
-	height: 0; 
+	width: 0;
+	height: 0;
 	border-left: @size solid transparent;
 	border-right: @size solid transparent;
 	border-top: @size solid @color;
 }
 
 .triangle-right(@size, @color) {
-	width: 0; 
-	height: 0; 
+	width: 0;
+	height: 0;
 	border-top: @size solid transparent;
 	border-bottom: @size solid transparent;
 	border-left: @size solid @color;
 }
 
 .triangle-left(@size, @color) {
-	width: 0; 
-	height: 0; 
+	width: 0;
+	height: 0;
 	border-top: @size solid transparent;
-	border-bottom: @size solid transparent; 
-	border-right: @size solid @color; 
+	border-bottom: @size solid transparent;
+	border-right: @size solid @color;
 }
