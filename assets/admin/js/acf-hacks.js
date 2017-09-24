@@ -7,7 +7,7 @@ jQuery(function($) {
 		console.log("Triggered render function of flexble content field.");
 	}
 	
-	// Copy the flexible_content field to contentblocks. 
+	// Copy the flexible_content field to contentblocks.
 	if(window.acf) {
 		acf.fields.contentblocks = acf.fields.flexible_content;
 	}
@@ -16,7 +16,7 @@ jQuery(function($) {
 	$("#acf-field-group-wrap .wp-list-table tr").each(function() {
 		var postName = $(this).find('.post_name').text();
 		if(postName === 'group_sharedblocks') {
-			$(this).remove();
+			// $(this).remove();
 		}
 	})
 });

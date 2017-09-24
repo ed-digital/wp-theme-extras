@@ -242,6 +242,10 @@ class acf_field_contentblocks extends acf_field {
 		
 		$originalField = $this->getOriginalField($post_id);
 		
+		$originalField['key'] = $field['key'];
+		$originalField['name'] = $field['name'];
+		$originalField['ID'] = $field['ID'];
+		
 		return apply_filters('acf/update_value/type=flexible_content', $value, $post_id, $originalField);
 		
 	}
@@ -267,6 +271,10 @@ class acf_field_contentblocks extends acf_field {
 		
 		$originalField = $this->getOriginalField();
 		
+		$originalField['key'] = $field['key'];
+		$originalField['name'] = $field['name'];
+		$originalField['ID'] = $field['ID'];
+		
 		return apply_filters('acf/format_value/type=flexible_content', $value, $post_id, $originalField);
 	}
 	
@@ -288,6 +296,10 @@ class acf_field_contentblocks extends acf_field {
 	function load_value( $value, $post_id, $field ) {
 		
 		$originalField = $this->getOriginalField();
+		
+		$originalField['key'] = $field['key'];
+		$originalField['name'] = $field['name'];
+		$originalField['ID'] = $field['ID'];
 		
 		//dump("Load");
 		return apply_filters('acf/load_value/type=flexible_content', $value, $post_id, $originalField);

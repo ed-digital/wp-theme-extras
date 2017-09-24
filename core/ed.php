@@ -518,7 +518,7 @@
         $manager = new EDColumnManager($name, isset($this->postTypeColumns[$name]) ? $this->postTypeColumns[$name] : array());
         $this->postTypeColumnManagers[$name] = $manager;
         add_filter('manage_edit-'.$name.'_columns', array($manager, 'alterColumnLayout'), 16);
-         add_action('manage_'.$name.'_posts_custom_column', array($manager, 'printColumn'), 16);
+        add_action('manage_'.$name.'_posts_custom_column', array($manager, 'printColumn'), 16);
       }
     }
     
