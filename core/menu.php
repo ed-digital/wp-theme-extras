@@ -11,6 +11,12 @@
       $classes[] = "current-menu-item";
     }
     
+    // If the item contains custom HTML, add the html-item class
+    // dump($item);
+    if (preg_match("/<\/[a-z]+>/", $item->title)) {
+      $classes[] = "html-item";
+    }
+    
     return $classes;
   }, 1, 2);
 ?>
