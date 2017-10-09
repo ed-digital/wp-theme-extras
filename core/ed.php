@@ -110,11 +110,11 @@
       }
       
       foreach($this->routes as $route) {
-        add_rewrite_rule($route[3], $route[4], $route[5]);
+        add_rewrite_rule($route[4], $route[5], $route[6]);
       }
       
       // If a hash of the routes doesn't match the one in the DB, flush the routes
-      $hash = md5(serialize($this->routes));
+      $hash = md5(json_encode($this->routes));
       if ($hash !== get_option("routes_hash")) {
         flush_rewrite_rules();
         update_option("routes_hash", $hash, true);
@@ -640,7 +640,7 @@
       
     }
     
-    public function addRoute ($path, $title, $template) {
+    public function addRoute ($path, $title, $template, $args = null) {
       $path = trim($path, "/") . '$';
       $routeIndex = count($this->routes);
       $template = ED()->themePath."/".preg_replace("/\.php$/", "", $template).".php";
@@ -648,6 +648,7 @@
         'template',
         $template,
         $title,
+        $args,
         $path,
         'index.php?static=customRoute&view='.$routeIndex,
         'top'
@@ -661,6 +662,7 @@
         'function',
         $callback,
         "",
+        null,
         $path,
         'index.php?static=customRoute&view='.$routeIndex,
         'top'
