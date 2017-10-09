@@ -3,6 +3,28 @@
 		Don't touch this file
 	*/
 	
-	EDPage::get()->executeMain("main", EDPage::get()->template);
-	EDPage::get()->executeBase();
+	$pageObject = EDPage::get();
+	
+	if (get_query_var("static") == "customRoute" && is_string(get_query_var("view"))) {
+		$route = ED()->routes[(int)get_query_var("view")];
+		$page = EDPage::get();
+		
+		add_filter("document_title_parts", function($title) use($route) {
+			if ($route[2]) {
+				return $route[2];
+			} else {
+				return $title;
+			}
+		}, 1, 1);
+		
+		if ($route[0] == 'template') {
+			$pageObject->template = $route[1];
+		} else if ($route[0] == 'function') {
+			$callback = $route[1];
+			$callback();
+			die();
+		}
+	}
+	$pageObject->executeMain("main", $pageObject->template);
+	$pageObject->executeBase();
 ?>
