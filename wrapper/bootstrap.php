@@ -9,13 +9,13 @@
 		$route = ED()->routes[(int)get_query_var("view")];
 		$page = EDPage::get();
 		
-		add_filter("document_title_parts", function($title) use($route) {
+		add_filter("wp_title", function($title) use($route) {
 			if ($route[2]) {
-				return $route[2];
+				return " | " . $route[2];
 			} else {
-				return $title;
+				return " | " . $title;
 			}
-		}, 1, 1);
+		}, 2, 2);
 		
 		if ($route[0] == 'template') {
 			$pageObject->template = $route[1];
