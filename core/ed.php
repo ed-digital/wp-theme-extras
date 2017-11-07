@@ -3,10 +3,10 @@
   class ED {
     
     private static $instance;
-    public $modules = array();
+    public $modules = [];
     public $moduleFieldGroups = null;
-    public $postTypeColumns = array();
-    public $postTypeColumnManagers = array();
+    public $postTypeColumns = [];
+    public $postTypeColumnManagers = [];
     
     public $themeURL = null;
     public $themePath = null;
@@ -15,15 +15,17 @@
     public $siteURL = null;
     
     public $API = null;
-    public $controllers = array();
+    public $controllers = [];
     
-    public $config = array(
+    public $routes = [];
+    
+    public $config = [
       "useBase" => true,
       "includeSiteKit" => true,
       "disableAdminBar" => false,
       "autoloadIncludeJS" => true,
 			"useRelativeURLs" => false
-    );
+    ];
     
     protected function __construct() { }
     
@@ -46,6 +48,12 @@
       $this->sitePath = preg_replace("/\/wp-content\/themes\/[^\/]+$/", "", $this->themePath);
       $this->siteURL = get_site_url();
       $this->edPath = $this->sitePath."/wp-content/plugins/ed/";
+      
+      // Add the 'view' query var, for custom routing
+      add_filter('query_vars', function($vars) {
+        $vars[] = "view";
+        return $vars;
+      });
       
       // Load core files
       $this->loadDir("core", true);
@@ -99,6 +107,17 @@
       
       if($this->config['disableAdminBar']) {
         add_filter('show_admin_bar', '__return_false');
+      }
+      
+      foreach($this->routes as $route) {
+        add_rewrite_rule($route[4], $route[5], $route[6]);
+      }
+      
+      // If a hash of the routes doesn't match the one in the DB, flush the routes
+      $hash = md5(json_encode($this->routes));
+      if ($hash !== get_option("routes_hash")) {
+        flush_rewrite_rules();
+        update_option("routes_hash", $hash, true);
       }
     }
     
@@ -619,6 +638,35 @@
         
       }
       
+    }
+    
+    public function addRoute ($path, $title, $template, $args = null) {
+      $path = trim($path, "/") . '$';
+      $routeIndex = count($this->routes);
+      $template = ED()->themePath."/".preg_replace("/\.php$/", "", $template).".php";
+      $this->routes[] = [
+        'template',
+        $template,
+        $title,
+        $args,
+        $path,
+        'index.php?static=customRoute&view='.$routeIndex,
+        'top'
+      ];
+    }
+    
+    public function addFunctionRoute ($path, $callback) {
+      $path = trim($path, "/") . '$';
+      $routeIndex = count($this->routes);
+      $this->routes[] = [
+        'function',
+        $callback,
+        "",
+        null,
+        $path,
+        'index.php?static=customRoute&view='.$routeIndex,
+        'top'
+      ];
     }
     
   }
