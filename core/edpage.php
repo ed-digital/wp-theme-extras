@@ -88,12 +88,19 @@
 		public function getState() {
 			
 		//	dump($this);
-			
-			return [
-				"template" => $this->base,
-				"type" => $this->originalPost ? $this->originalPost->post_type : "",
-				"slug" => $this->originalPost ? $this->originalPost->post_name : ""
-			];
+			if (get_query_var('static') === 'customRoute') {
+				return [
+					"template" => preg_replace("/.php$/", "", str_replace(ED()->themePath."/", "", $this->template)),
+					"type" => "page",
+					"slug" => preg_replace("/(^\/|\/$)/", "", $_SERVER['REQUEST_URI'])
+				];
+			} else {
+				return [
+					"template" => $this->base,
+					"type" => $this->originalPost ? $this->originalPost->post_type : "",
+					"slug" => $this->originalPost ? $this->originalPost->post_name : ""
+				];
+			}
 			
 		}
 		
