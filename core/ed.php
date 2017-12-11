@@ -257,9 +257,9 @@
       
       foreach($src as $path) {
         $path = preg_replace("/^([\/]+)/", "", $path);
-        $location = strpos($path, "http") === 0 ? $path :  $this->locateFile($path);
+        $location = strpos($path, "http") === 0 ? $path : $this->locateFile($path);
         if($location) {
-          wp_enqueue_style(md5($path), $this->getURL($location).$append);
+          wp_enqueue_style(md5($path), $this->getURL($location).$append, null, @filemtime($this->locateFile($path)));
         }
       }
       
@@ -274,16 +274,18 @@
       foreach($src as $path) {
         $url = null;
         $path = preg_replace("/^([\/]+)/", "", $path);
+        $version = "";
         if(strpos($path, "http") === 0) {
           $url = $path;
         } else {
           $location = $this->locateFile($path);
           if($location) {
+            $version = @filemtime($location);
             $url = $this->getURL($location);
           }
         }
         if($url) {
-          @wp_enqueue_script(md5($path), $url . $append, $deps);
+          @wp_enqueue_script(md5($path), $url . $append, $deps, $version);
         }
       }
       
