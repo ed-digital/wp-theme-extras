@@ -155,8 +155,7 @@ class acf_field_contentblocks extends acf_field {
 		*/
 		?>
 		
-		<!-- <div class="acf-field acf-field-flexible-content" data-name="<?=$field['name'];?>" data-type="flexible_content" data-key="<?=$field['key']?>"> -->
-		<div class="acf-field acf-field-flexible-content">
+		<div class="acf-field acf-field-flexible-content" data-name="<?=$field['name'];?>" data-type="flexible_content" data-key="<?=$field['key']?>">
 			
 			<?
 				
