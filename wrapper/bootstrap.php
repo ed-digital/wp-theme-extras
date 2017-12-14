@@ -6,6 +6,7 @@
 	$pageObject = EDPage::get();
 	
 	if (get_query_var("static") == "customRoute" && is_string(get_query_var("view"))) {
+		status_header(200);
 		$route = ED()->routes[(int)get_query_var("view")];
 		$page = EDPage::get();
 		
