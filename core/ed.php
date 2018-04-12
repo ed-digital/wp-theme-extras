@@ -24,7 +24,7 @@
       "includeSiteKit" => true,
       "disableAdminBar" => false,
       "autoloadIncludeJS" => true,
-			"useRelativeURLs" => false
+      "useRelativeURLs" => false
     ];
     
     protected function __construct() { }
@@ -94,7 +94,11 @@
       add_action('admin_notices', array($this, '_showPluginWarnings'));
       
       add_filter('plugin_row_meta', array($this, "addPluginLinks"), 0, 4);
-
+      
+      add_filter('wpseo_metabox_prio', function() {
+        return 'low';
+      });
+      
       if($this->config["useRelativeURLs"] == true) {
         // Load relative URL sub-plugin
         include_once(__dir__."/../lib/relative-url/relative-url.php");
