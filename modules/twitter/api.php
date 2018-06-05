@@ -19,7 +19,7 @@
 		public function getHTML($links = true, $users = true, $hashtags = true, $mediaLinks = true) {
 			
 			$tweet = $this->data;
-			$text = $tweet->text;
+			$text = $tweet->full_text ? $tweet->full_text : $tweet->text;
 
 			$entities = array();
 			
@@ -100,6 +100,41 @@
 			include_once("twitter-api/TwitterAPIExchange.php");
 			$tokens = ED()->getModuleSetting("twitter", "tokens");
 			$this->twitter = new TwitterAPIExchange($tokens);
+		}
+		
+		public function getTweetsFromSearch ($args, $isAjax = false) {
+			if($isAjax) throw new Exception("This method cannot be called via XHR.");
+			$this->ensureLoaded();
+			
+			$url = 'https://api.twitter.com/1.1/search/tweets.json';
+			$query = [];
+			foreach ($args as $k => $v) {
+				$query[] = $k.'='.urlencode((string)$v);
+			}
+			$qs = "?".implode("&", $query);
+			
+			$cacheKey = md5($url.$qs);
+			
+			if($cached = get_transient($cacheKey) && !$args['dontCache']) {
+				
+				return $cached;
+				
+			} else {
+				
+				$response = $this->twitter->setGetfield($qs)
+					->buildOauth($url, 'GET')
+					->performRequest();
+				
+				$data = json_decode($response)->statuses;
+				
+				$data = array_map(function($item) {
+					return new EDTweet($item);
+				}, $data);
+				
+				set_transient($cacheKey, $data, (int)@$args['cache_time'] ? $args['cache_time'] : 3600);
+				
+				return $data;
+			}
 		}
 		
 		/*
