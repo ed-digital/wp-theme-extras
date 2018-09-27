@@ -9,8 +9,8 @@ if( !class_exists('acf_field_contentblocks') ) :
 
 
 class acf_field_contentblocks extends acf_field {
-	
-	
+
+
 	/*
 	*  __construct
 	*
@@ -23,40 +23,40 @@ class acf_field_contentblocks extends acf_field {
 	*  @param	n/a
 	*  @return	n/a
 	*/
-	
+
 	function __construct() {
-		
+
 		/*
 		*  name (string) Single word, no spaces. Underscores allowed
 		*/
-		
+
 		$this->name = 'contentblocks';
-		
-		
+
+
 		/*
 		*  label (string) Multiple words, can include spaces, visible when selecting a field type
 		*/
-		
+
 		$this->label = __('ED. Content Blocks', 'acf-contentblocks');
-		
-		
+
+
 		/*
 		*  category (string) basic | content | choice | relational | jquery | layout | CUSTOM GROUP NAME
 		*/
-		
+
 		$this->category = 'layout';
-		
+
 		$this->defaults = array(
 			'enabledTypes' => []
 		);
-		
-				
+
+
 		// do not delete!
     	parent::__construct();
-    	
+
 	}
-	
-	
+
+
 	/*
 	*  render_field_settings()
 	*
@@ -69,9 +69,9 @@ class acf_field_contentblocks extends acf_field {
 	*  @param	$field (array) the $field being edited
 	*  @return	n/a
 	*/
-	
+
 	function render_field_settings( $field ) {
-		
+
 		/*
 		*  acf_render_field_setting
 		*
@@ -81,15 +81,15 @@ class acf_field_contentblocks extends acf_field {
 		*  More than one setting can be added by copy/paste the above code.
 		*  Please note that you must also have a matching $defaults value for the field name (font_size)
 		*/
-		
+
 		// Grab the content types field post
 		$contentTypesPost = get_posts([
 			'name' => 'field_blocks',
 			'post_type' => 'acf-field'
 		]);
-		
+
 		$types = [];
-		
+
 		if($contentTypesPost && count($contentTypesPost)) {
 			$data = unserialize($contentTypesPost[0]->post_content);
 			if($data && $data['layouts']) {
@@ -98,7 +98,7 @@ class acf_field_contentblocks extends acf_field {
 				}
 			}
 		}
-		
+
 		acf_render_field_setting( $field, array(
 			'label'			=> __('Enabled Types','acf-contentblocks'),
 			'instructions'	=> "Select the block types that should be enabled for this field",
@@ -108,10 +108,10 @@ class acf_field_contentblocks extends acf_field {
 		));
 
 	}
-	
+
 	function getOriginalField($postID = null) {
 		$originalField = get_field_object('field_blocks', $postID);
-		
+
 	//	dump("Original Field", $originalField);
 
 		// Remove duplicate fields which for some reason exist. Stupid.
@@ -126,11 +126,11 @@ class acf_field_contentblocks extends acf_field {
 		// 	}
 		// 	$originalField['layouts'][$key]['sub_fields'] = $subfields;
 		// }
-		
+
 		return $originalField;
 	}
-	
-	
+
+
 	/*
 	*  render_field()
 	*
@@ -145,39 +145,39 @@ class acf_field_contentblocks extends acf_field {
 	*  @param	$field (array) the $field being edited
 	*  @return	n/a
 	*/
-	
+
 	function render_field( $field ) {
-		
-		
+
+
 		/*
 		*  Review the data of $field.
 		*  This will show what data is available
 		*/
 		?>
-		
+
 		<div class="acf-field acf-field-flexible-content" data-name="<?=$field['name'];?>" data-type="flexible_content" data-key="<?=$field['key']?>">
-			
+
 			<?
-				
+
 				$contentTypesPost = get_posts([
 					'name' => 'field_blocks',
 					'post_type' => 'acf-field'
 				]);
-				
+
 				if(!$contentTypesPost || !count($contentTypesPost)) return;
-				
+
 				global $post;
-				
+
 				$originalField = $this->getOriginalField();
-				
+
 				$blockTypes = [];
-				
+
 				foreach($originalField['layouts'] as $item) {
 					if(in_array($item['name'], $field['enabledTypes'])) {
 						$blockTypes[] = $item;
 					}
 				}
-				
+
 				$flexibleContentProxy = [
 					'key' => $field['key'],
 					'name' => $field['name'],
@@ -191,15 +191,15 @@ class acf_field_contentblocks extends acf_field {
 					'button_label' => 'Add Block',
 					'layouts' => $blockTypes
 				];
-				
+
 				do_action('acf/render_field/type=flexible_content', $flexibleContentProxy);
-			
+
 			?>
 		</div>
 		<?php
 	}
-	
-		
+
+
 	/*
 	*  input_admin_enqueue_scripts()
 	*
@@ -213,15 +213,15 @@ class acf_field_contentblocks extends acf_field {
 	*  @param	n/a
 	*  @return	n/a
 	*/
-	
+
 	function input_admin_enqueue_scripts() {
-		
+
 		wp_enqueue_script('acf-pro-input');
-		
+
 	}
-	
-	
-	
+
+
+
 	/*
 	*  update_value()
 	*
@@ -236,20 +236,20 @@ class acf_field_contentblocks extends acf_field {
 	*  @param	$field (array) the field array holding all the field options
 	*  @return	$value
 	*/
-	
+
 	function update_value( $value, $post_id, $field ) {
-		
+
 		$originalField = $this->getOriginalField($post_id);
-		
+
 		$originalField['key'] = $field['key'];
 		$originalField['name'] = $field['name'];
 		$originalField['ID'] = $field['ID'];
-		
+
 		return apply_filters('acf/update_value/type=flexible_content', $value, $post_id, $originalField);
-		
+
 	}
-	
-	
+
+
 	/*
 	*  format_value()
 	*
@@ -265,18 +265,18 @@ class acf_field_contentblocks extends acf_field {
 	*
 	*  @return	$value (mixed) the modified value
 	*/
-	
+
 	function format_value( $value, $post_id, $field ) {
-		
+
 		$originalField = $this->getOriginalField();
-		
+
 		$originalField['key'] = $field['key'];
 		$originalField['name'] = $field['name'];
 		$originalField['ID'] = $field['ID'];
-		
+
 		return apply_filters('acf/format_value/type=flexible_content', $value, $post_id, $originalField);
 	}
-	
+
 	/*
 	*  load_value()
 	*
@@ -291,21 +291,21 @@ class acf_field_contentblocks extends acf_field {
 	*  @param	$field (array) the field array holding all the field options
 	*  @return	$value
 	*/
-	
+
 	function load_value( $value, $post_id, $field ) {
-		
+
 		$originalField = $this->getOriginalField();
-		
+
 		$originalField['key'] = $field['key'];
 		$originalField['name'] = $field['name'];
 		$originalField['ID'] = $field['ID'];
-		
+
 		//dump("Load");
 		return apply_filters('acf/load_value/type=flexible_content', $value, $post_id, $originalField);
-		
+
 	}
-	
-	
+
+
 	/*
 	*  validate_value()
 	*
@@ -323,22 +323,22 @@ class acf_field_contentblocks extends acf_field {
 	*  @param	$input (string) the corresponding input name for $_POST value
 	*  @return	$valid
 	*/
-	
+
 	function validate_value($valid, $value, $field, $input) {
-		
+
 		$originalField = $this->getOriginalField();
-		
+
 		$originalField['key'] = $field['key'];
 		$originalField['name'] = $field['name'];
 		$originalField['ID'] = $field['ID'];
-		
+
 		$result = apply_filters('acf/validate_value/type=flexible_content', $valid, $value, $originalField, $input);
-		
+
 		return $result;
-		
+
 	}
-	
-	
+
+
 	/*
 	*  delete_value()
 	*
@@ -353,14 +353,14 @@ class acf_field_contentblocks extends acf_field {
 	*  @param	$key (string) the $meta_key which the value was deleted
 	*  @return	n/a
 	*/
-	
-	function delete_value( $post_id, $key ) {
-		
-		return do_action('acf/delete_value/type=flexible_content', $post_id, $key);
-		
+
+	function delete_value( $post_id, $key, $field ) {
+
+		return do_action('acf/delete_value/type=flexible_content', $post_id, $key, $field);
+
 	}
-	
-	
+
+
 }
 
 

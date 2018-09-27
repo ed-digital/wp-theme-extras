@@ -33,6 +33,8 @@
 					self::serveResult($result);
 				} catch(Exception $e) {
 					self::serveError($e->getCode(), $e->getMessage(), @$e->info);
+				} catch(Error $e) {
+					self::serveError($e->getCode(), $e->getMessage(), @$e->info);
 				}
 				
 				die();
