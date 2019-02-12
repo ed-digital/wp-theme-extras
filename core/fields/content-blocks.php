@@ -110,7 +110,6 @@ class acf_field_contentblocks extends acf_field {
 	}
 
 	function getOriginalField($postID = null) {
-<<<<<<< HEAD
 		$selector = "field_blocks";
 		$post_id = false;
 		$format_value = true;
@@ -142,26 +141,6 @@ class acf_field_contentblocks extends acf_field {
 
 		// return
 		return $field;
-=======
-		$originalField = get_field_object('field_blocks', $postID);
-
-	//	dump("Original Field", $originalField);
-
-		// Remove duplicate fields which for some reason exist. Stupid.
-		// foreach($originalField['layouts'] as $key => $item) {
-		// 	$subfields = [];
-		// 	$keys = [];
-		// 	foreach($item['sub_fields'] as $subfield) {
-		// 		if(!$keys[$subfield['key']]) {
-		// 			$keys[$subfield['key']] = true;
-		// 			$subfields[] = $subfield;
-		// 		}
-		// 	}
-		// 	$originalField['layouts'][$key]['sub_fields'] = $subfields;
-		// }
-
-		return $originalField;
->>>>>>> 1cec3fb71e9baafc2a2a4c46d500d3223a1bd206
 	}
 
 
