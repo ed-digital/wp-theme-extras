@@ -110,24 +110,37 @@ class acf_field_contentblocks extends acf_field {
 	}
 
 	function getOriginalField($postID = null) {
-		$originalField = get_field_object('field_blocks', $postID);
+		$selector = "field_blocks";
+		$post_id = false;
+		$format_value = true;
+		$load_value = true;
 
-	//	dump("Original Field", $originalField);
+		// compatibilty
+		if( is_array($format_value) ) extract( $format_value );
 
-		// Remove duplicate fields which for some reason exist. Stupid.
-		// foreach($originalField['layouts'] as $key => $item) {
-		// 	$subfields = [];
-		// 	$keys = [];
-		// 	foreach($item['sub_fields'] as $subfield) {
-		// 		if(!$keys[$subfield['key']]) {
-		// 			$keys[$subfield['key']] = true;
-		// 			$subfields[] = $subfield;
-		// 		}
-		// 	}
-		// 	$originalField['layouts'][$key]['sub_fields'] = $subfields;
-		// }
+		// get valid post_id
+		$post_id = acf_get_valid_post_id( $post_id );
 
-		return $originalField;
+		// get field key
+		$field = acf_maybe_get_field( $selector, $post_id, false);
+
+		// bail early if no field found
+		if( !$field ) return false;
+
+		// load value
+		if( $load_value ) {
+			$field['value'] = acf_get_value( $post_id, $field );
+		}
+
+		// format value
+		if( $format_value ) {
+			// get value for field
+			$field['value'] = acf_format_value( $field['value'], $post_id, $field );
+		}
+
+
+		// return
+		return $field;
 	}
 
 
