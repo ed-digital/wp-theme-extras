@@ -1,27 +1,18 @@
 <?
 	
 	ED()->setConfig([
-		"useBase" => true,
-		"includeSiteKit" => false,
-		"useRelativeURLs" => true
+    // Enable the use of base.php
+    "useBase" => true,
+    // Prevent WP from producing absolute URLs — great for staging sites, although not strictly necessary. Can cause issues with some plugins.
+    "useRelativeURLs" => true,
+    // Load components from the 'components' folder
+    "loadComponents" => true
 	]);
-	
-	/* Install Instagram and Twitter modules */
-/*
-	ED()->useModule("instagram");
-	ED()->useModule("twitter", array(
-		"tokens" => array(
-			'oauth_access_token' => "2156908838-s7BDJ4aMTPwQdvL5Z5h4XSds7uFqAwAfQtfF14E",
-			'oauth_access_token_secret' => "IiP04fOWXgpQfEqGTV8BgbdqgetXdFikkNsFa50p0m6NY",
-			'consumer_key' => "Sa7uLHCDJYQtCwhKDoTOIMKI8",
-			'consumer_secret' => "BjnbCOAEsrrwgxvWi6S0wm2zHY5mUA1EJjWyBREzVC9cZJCIsz"
-		)
-	));
-*/
 	
 	ED()->registerMenu("main", "Main Header Menu");
 	
 	// Image Sizes
-	add_image_size("full-size", 1400, 1000, false);
+  add_image_size("full-size", 1400, 1000, false);
+  add_image_size("preview", 300, 300, false);
 	
 ?>

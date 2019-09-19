@@ -1,4 +1,4 @@
-<?
+<?php
   
   add_filter('wp_nav_menu_objects', function($items) {
     
@@ -41,4 +41,3 @@
     return $items;
   });
   
-?>

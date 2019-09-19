@@ -1,4 +1,4 @@
-<?
+<?php
 	
 	final class EDJSONAPIListener {
 		
@@ -74,4 +74,3 @@
 	// Hook into parse_request
 	add_action('parse_request', array("EDJSONAPIListener", "handle"));
 	
-?>

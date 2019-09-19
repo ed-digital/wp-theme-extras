@@ -1,4 +1,4 @@
-<?
+<?php
 
 	add_filter("redirect_canonical", function($url, $requested) {
 		if (get_query_var('static') === 'customRoute') {
@@ -8,44 +8,3 @@
 		}
 	}, 2, 2);
 	
-	// add_filter('query_vars', function($req) {
-	// 	echo "query_vars:<br><pre>";
-	// 	print_r(func_get_args());
-	// 	echo "</pre>";
-	// 	return $req;
-	// });
-  //
-	// add_filter('request', function($req) {
-	// 	echo "request:<br><pre>";
-	// 	print_r(func_get_args());
-	// 	echo "</pre>";
-	// 	return $req;
-	// });
-  //
-	// add_filter('do_parse_request', function($req) {
-	// 	echo "do_parse_request:<br><pre>";
-	// 	print_r(func_get_args());
-	// 	echo "</pre>";
-	// 	return $req;
-	// });
-	
-	// add_action('template_redirect', function() {
-	// 	echo "template_redirect:<br><pre>";
-	// 	dump(func_get_args());
-	// }, 1);
-
-/*
-	add_action('parse_request', function($req) {
-		
-		$url = $_SERVER['REQUEST_URI'];
-		
-		if(strpos($url, "json") !== false) {
-			
- 			die();
- 			
-		}
-		
-	});
-*/
-	
-?>

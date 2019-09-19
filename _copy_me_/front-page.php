@@ -1,1 +1,3 @@
-Put your homepage content here
+<?
+  echo C()->Pages->Homepage()
+?>

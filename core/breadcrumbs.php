@@ -1,4 +1,4 @@
-<?
+<?php
 	
 	class EDBreadcrumbs {
 		
@@ -65,4 +65,3 @@
 		
 	}
 	
-?>

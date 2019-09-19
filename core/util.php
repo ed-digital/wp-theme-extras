@@ -1,4 +1,4 @@
-<?
+<?php
 	
 	function utf8_substr_replace($original, $replacement, $position, $length) {
 		$startString = mb_substr($original, 0, $position, "UTF-8");
@@ -8,5 +8,3 @@
 		
 		return $out;
 	}
-
-?>

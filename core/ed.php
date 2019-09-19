@@ -1,4 +1,4 @@
-<?
+<?php
 
   class ED {
 
@@ -21,9 +21,10 @@
 
     public $config = [
       "useBase" => true,
-      "includeSiteKit" => true,
+      "includeSiteKit" => false,
       "disableAdminBar" => false,
-      "autoloadIncludeJS" => true,
+      "autoloadIncludeJS" => false,
+      "loadComponents" => false,
       "useRelativeURLs" => false
     ];
 
@@ -102,6 +103,10 @@
       if($this->config["useRelativeURLs"] == true) {
         // Load relative URL sub-plugin
         include_once(__dir__."/../lib/relative-url/relative-url.php");
+      }
+
+      if($this->config["loadComponents"] == true) {
+        ComponentRegistry::loadComponents($this->themePath."/components");
       }
     }
 
@@ -701,5 +706,3 @@
   }
 
   ED();
-
-?>

@@ -1,4 +1,4 @@
-<?
+<?php
 	
 	class EDColumnManager {
 		
@@ -64,4 +64,3 @@
 		
 	}
 	
-?>

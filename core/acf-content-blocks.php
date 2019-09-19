@@ -1,4 +1,4 @@
-<?
+<?php
 	
 	class ACFSharedFields {
 		
@@ -275,5 +275,3 @@
 	}
 	
 	new ACFSharedFields();
-
-?>
