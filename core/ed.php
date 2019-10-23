@@ -685,6 +685,22 @@
       ensureDatabaseTable($createStatement);
     }
 
+    /*
+      Expected the same arguments as "acf_register_block_type", however with a "component" attribute, which must be a string
+    */
+    public function addBlock ($def) {
+      if (!$def['render_callback']) {
+        if (!$def['component']) {
+          throw new Exception("No 'component' attribute was found when registering a block.");
+        }
+        $def['render_callback'] = function(...$args) use ($def) {
+          $fields = get_fields();
+          echo C($def['component'], $fields);
+        };
+      }
+      return acf_register_block_type($def);
+    }
+
   }
 
   function dump() {
