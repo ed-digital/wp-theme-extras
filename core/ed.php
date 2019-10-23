@@ -53,6 +53,7 @@
       // Add the 'view' query var, for custom routing
       add_filter('query_vars', function($vars) {
         $vars[] = "view";
+        $vars[] = "static";
         return $vars;
       });
 
