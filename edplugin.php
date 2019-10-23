@@ -3,7 +3,7 @@
 Plugin Name: ED. Plugin
 Plugin URI: http://ed.com.au
 Description: Provides a bunch of cool stuff for ED. Developers
-Version: 1.5.1
+Version: 1.5.2
 Author: Daniel Lever
 Text Domain: edplugin
 License: GPLv2 or later.
