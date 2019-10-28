@@ -54,8 +54,10 @@
  			ob_start();
  			
  			$this->_endCapture = false;
-			
-			include($__template);
+      
+      if ($__template) {
+        include($__template);
+      }
 			
 			if($this->_endCapture == false) {
 	 			$this->content[$__name] = ob_get_contents();
