@@ -45,9 +45,19 @@
     private function __construct() {
 
     }
+
+    static function _glob_recursive($pattern, $flags = 0){
+      $files = glob($pattern, $flags);
+      
+      $globbed = glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT);
+      foreach ($globbed as $dir){
+        $files = array_merge($files, self::_glob_recursive($dir.'/'.basename($pattern), $flags));
+      }
+      return $files;
+    }
     
     static function loadComponents($folder) {
-      $components = glob($folder."/**/*.php");
+      $components = self::_glob_recursive($folder."/**/*.php");
       foreach ($components as $file) {
         $name = cleanComponentName(preg_replace("/(^\/|.php$)/i", "", str_replace($folder, "", $file)));
         $segments = explode("/", $name);
@@ -89,7 +99,7 @@
         if (!file_exists($file)) continue;
         $contents = file_get_contents($file);
 
-        $files = glob(ED()->themePath."/components/**/*".$ext);
+        $files = self::_glob_recursive(ED()->themePath."/components/**/*".$ext);
         
         $lines = [];
         foreach ($files as $item) {

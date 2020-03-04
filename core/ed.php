@@ -685,6 +685,10 @@
       ensureDatabaseTable($createStatement);
     }
 
+    public function disableDefaultBlocks() {
+      $this->defaultBlocksDisabled = true;
+    }
+
     /*
       Expected the same arguments as "acf_register_block_type", however with a "component" attribute, which must be a string
     */
@@ -699,6 +703,13 @@
         };
       }
       return acf_register_block_type($def);
+    }
+
+    public function addBodyClass ($className) {
+      add_filter('body_class', function($classes) use ($className) {
+        $classes[] = $className;
+        return $classes;
+      });
     }
 
   }
