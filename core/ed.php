@@ -48,7 +48,7 @@
       $this->themePath = get_stylesheet_directory();
       $this->sitePath = preg_replace("/\/wp-content\/themes\/[^\/]+$/", "", $this->themePath);
       $this->siteURL = get_site_url();
-      $this->edPath = $this->sitePath."/wp-content/plugins/ed/";
+      $this->edPath = realpath(__DIR__."/../");
 
       // Add the 'view' query var, for custom routing
       add_filter('query_vars', function($vars) {
@@ -58,7 +58,7 @@
       });
 
       // Load core files
-      $this->loadDir("core", true);
+      $this->loadDir(__DIR__, true);
       $this->API = new ED_API();
 
       if($this->themePath == $this->edPath) {
@@ -74,7 +74,7 @@
       include($configPath);
 
       // Include stuff
-      $this->loadDir("includes", true);
+      $this->loadDir($this->themePath."/includes");
 
       add_action("init", array($this, "wpInit"));
 
@@ -136,6 +136,7 @@
     }
 
     public function enqueueFiles() {
+      return;
 
       if(is_admin()) {
 
@@ -483,35 +484,15 @@
       Loads all .php files in the specified directory in both the child and parent theme, optionally ignoring the parent themes version of the file if the file exists in the child theme
       Uses require_once
     */
-    public function loadDir($path, $ignoreParentIfChild = false) {
-
-      $path = trim($path, "/");
-
-      $parentPath = $this->edPath;
-      $childPath = get_stylesheet_directory();
+    public function loadDir($path) {
 
       // Grab a list of files for both parent/child themes
-      $parentFiles = str_ireplace($parentPath, "", glob($parentPath."/".$path."/*.php"));
-      $childFiles = str_ireplace($childPath, "", glob($childPath."/".$path."/*.php"));
+      $files = glob($path."/*.php");
 
-      // If we're allowing files to be overridden, filter out parent files which HAVE been overridden
-      if($ignoreParentIfChild) {
-        // Remove files from the parent which exist in child theme
-        $parentFiles = array_diff($parentFiles, $childFiles);
+      foreach($files as $file) {
+        require_once($file);
       }
 
-      // Include each of the files
-      foreach($parentFiles as $file) {
-        $this->requireOnce($parentPath.$file);
-      }
-      foreach($childFiles as $file) {
-        $this->requireOnce($childPath.$file);
-      }
-
-    }
-
-    private function requireOnce($path) {
-      require_once($path);
     }
 
     /*
