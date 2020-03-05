@@ -24,7 +24,7 @@
       "includeSiteKit" => false,
       "disableAdminBar" => false,
       "autoloadIncludeJS" => false,
-      "loadComponents" => false,
+      "loadComponents" => true,
       "useRelativeURLs" => false
     ];
 
@@ -66,13 +66,6 @@
         return;
       }
 
-      // Load the theme config file
-      $configPath = $this->themePath."/config.php";
-      if(!file_exists($configPath)) {
-        throw new Exception("No child theme config.php found.");
-      }
-      include($configPath);
-
       // Include stuff
       $this->loadDir("includes", true);
 
@@ -92,10 +85,7 @@
       });
 
       add_action('admin_head', array($this, "_hookListingColumns"));
-      add_action('admin_init', array($this, "_hookACFJSON"));
       add_action('admin_notices', array($this, '_showPluginWarnings'));
-
-      add_filter('plugin_row_meta', array($this, "addPluginLinks"), 0, 4);
 
       add_filter('wpseo_metabox_prio', function() {
         return 'low';
@@ -113,7 +103,6 @@
 
     public function wpInit() {
       $this->includePostTypes();
-      $this->enqueueFiles();
 
       if($this->config['disableAdminBar']) {
         add_filter('show_admin_bar', '__return_false');
@@ -133,69 +122,6 @@
 
     public function includePostTypes() {
       $this->loadDir("includes/post-types");
-    }
-
-    public function enqueueFiles() {
-
-      if(is_admin()) {
-
-        // Automatically include all widget and lib files
-        $lessFiles = array_merge(
-          glob($this->themePath."/assets/admin/less/*.less"),
-          glob($this->themePath."/assets/admin/less/*.css")
-        );
-        foreach($lessFiles as $file) {
-          $this->addCSS($this->getURL($file));
-        }
-
-        // Automatically include all widget and lib files
-        $jsFiles = array_merge(
-          glob($this->themePath."/assets/admin/js/*.js")
-        );
-        foreach($jsFiles as $file) {
-          $this->addJS($this->getURL($file), [
-            "jquery-ui-widget"
-          ]);
-        }
-
-      } else {
-
-        // ED Sitekit
-        if($this->config['includeSiteKit'] == true) {
-
-          $this->addJS("assets/js/ed-sitekit.js", array(
-            "jquery-ui-widget"
-          ));
-
-        }
-
-        // Automatically include all widget and lib files
-        if($this->config['autoloadIncludeJS'] == true) {
-          $jsFiles = array_merge(
-            glob($this->themePath."/assets/js/widgets/*.js"),
-            glob($this->themePath."/assets/js/lib/*.js")
-          );
-          foreach($jsFiles as $file) {
-            $this->addJS($this->getURL($file));
-          }
-        }
-
-      }
-
-    }
-
-    public function addPluginLinks($meta, $file, $data, $status) {
-
-      if($file == "ed/edplugin.php") {
-        $meta[] = "<a href='http://ed-wp-plugin.ed.com.au/release/ed-".$data['Version']."-blank-theme.zip'>Download Blank Theme</a>";
-        $meta[] = "<a href='https://bitbucket.org/ed_digital/ed-wp-plugin/wiki/Home'>View Wiki</a>";
-        if($this->isPluginGitControlled()) {
-          $meta[] = "Found <code>.git</code> folder, updates disabled!";
-        }
-      }
-
-      return $meta;
-
     }
 
     public function _showInvalidSetup() {
@@ -348,85 +274,6 @@
       } else {
         return isset($settings[$settingName]) ? $settings[$settingName] : null;
       }
-    }
-
-    public function _hookACFJSON() {
-
-      foreach($this->modules as $name => $options) {
-
-         // Load ACF field info from file if the user is currently in the ACF interface
-         if(isset($_GET['post_type']) && $_GET['post_type'] == "acf-field-group") {
-
-           // Get all json files in this directory
-           $dir = get_template_directory() . '/modules/'.$name.'/acf-json';
-
-           if(!is_dir($dir)) continue;
-
-           $files = scandir($dir);
-
-           if(!$this->moduleFieldGroups) {
-             $this->moduleFieldGroups = array();
-           }
-
-           foreach($files as $filePath) {
-
-             // Ensure the files are following the ACF naming convention
-             preg_match("/(group_[a-z0-9]+)/", $filePath, $match);
-
-             if($match) {
-
-               $src = $dir."/".$filePath;
-
-               $key = $match[0];
-               $dateModified = filemtime($src);
-
-               $this->moduleFieldGroups[$key] = (object)array(
-                 "modified" => $dateModified,
-                 "module" => $name,
-                 "path" => $src
-               );
-
-               $result = json_decode(file_get_contents($src), true);
-               $result['file_mtime'] = $dateModified;
-
-               $existing = acf_get_field_group($result['key']);
-               if(!$existing) {
-                 $result['local'] = 'json';
-                 $result['original_import_modified_date'] = $dateModified;
-                 $result['fresh'] = true;
-                 acf_local()->add_field_group($result);
-              }
-
-               // Re-import if requested
-               if(isset($_GET['reimport']) && isset($_GET['group_key']) && $result['key'] == $_GET['group_key']) {
-
-                 $result['ID'] = (int)$_GET['reimport'];
-                 $result['original_import_modified_date'] = $dateModified;
-                 $result['fresh'] = true;
-                 ob_start();
-                 acf_import_field_group($result);
-
-                 ob_end_clean();
-                 header("Location: edit.php?post_type=acf-field-group&reimportcomplete=true");
-                 die();
-
-               } else if(isset($_GET['reimportcomplete'])) {
-                 acf_add_admin_notice('Field group re-imported from ThemED.');
-               }
-
-             }
-           }
-
-         }
-
-       }
-
-       if(isset($_POST['acf_field_group']) && isset($_POST['acf_field_group']['key'])) {
-         $key = $_POST['acf_field_group']['key'];
-         $current = acf_get_field_group($key);
-         $_POST['acf_field_group']['original_import_modified_date'] = @$current['original_import_modified_date'];
-       }
-
     }
 
     /*
