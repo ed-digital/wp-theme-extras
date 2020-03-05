@@ -1,3 +1,0 @@
-<?
-  echo C()->Pages->Homepage()
-?>
