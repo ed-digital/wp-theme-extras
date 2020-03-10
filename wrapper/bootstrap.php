@@ -1,8 +1,5 @@
 <?php
-	/*
-		Don't touch this file
-	*/
-	
+
 	$pageObject = EDPage::get();
 	
 	if (get_query_var("static") == "customRoute" && is_string(get_query_var("view"))) {
