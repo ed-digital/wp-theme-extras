@@ -17,6 +17,8 @@
     public $API = null;
     public $controllers = [];
 
+    public $blockWhitelist = [];
+
     public $routes = [];
 
     public $config = [
@@ -520,6 +522,10 @@
         };
       }
       return acf_register_block_type($def);
+    }
+
+    public function whitelistBlock($blockName) {
+      $this->blockWhitelist[] = $blockName;
     }
 
     public function addBodyClass ($className) {
