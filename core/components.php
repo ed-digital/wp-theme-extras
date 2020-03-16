@@ -4,6 +4,7 @@
     static $depth;
     static $stack;
     static $index;
+
     static function reset() {
       self::$depth = 0;
       self::$index = 0;
@@ -42,6 +43,11 @@
   class ComponentRegistry {
     static $components;
     static $directory;
+
+    static function defaultDir () {
+      return ED()->themePath . '/parts';
+    }
+
     private function __construct() {
 
     }
@@ -56,7 +62,8 @@
       return $files;
     }
     
-    static function loadComponents($folder) {
+    static function loadComponents($folder = null) {
+      $folder = $folder ?? self::defaultDir();
       $components = self::_glob_recursive($folder."/**/*.php");
       foreach ($components as $file) {
         $name = cleanComponentName(preg_replace("/(^\/|.php$)/i", "", str_replace($folder, "", $file)));
@@ -95,15 +102,15 @@
       ];
       
       foreach ($types as $ext => $wraps) {
-        $file = ED()->themePath . "/components/index$ext";
+        $file = self::defaultDir() . "/index$ext";
         if (!file_exists($file)) continue;
         $contents = file_get_contents($file);
 
-        $files = self::_glob_recursive(ED()->themePath."/components/**/*".$ext);
+        $files = self::_glob_recursive(self::defaultDir() . "/**/*".$ext);
         
         $lines = [];
         foreach ($files as $item) {
-          $lines[] = $wraps[0] . str_replace(ED()->themePath."/components/", "./", $item) . $wraps[1];
+          $lines[] = $wraps[0] . str_replace(self::defaultDir()."/", "./", $item) . $wraps[1];
         }
 
         $newContents = implode("\n", $lines);

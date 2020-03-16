@@ -99,7 +99,7 @@
       }
 
       if($this->config["loadComponents"] == true) {
-        ComponentRegistry::loadComponents($this->themePath."/components");
+        ComponentRegistry::loadComponents();
       }
     }
 
