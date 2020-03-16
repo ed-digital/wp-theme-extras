@@ -521,7 +521,13 @@
           echo C($def['component'], $fields);
         };
       }
-      return acf_register_block_type($def);
+
+      /* When the theme is installed the site may not have acf installed */
+      if (function_exists('acf_register_block_type')) {
+        return acf_register_block_type($def);
+      } else {
+        return $def;
+      }
     }
 
     public function whitelistBlock($blockName) {
