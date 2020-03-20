@@ -1,8 +1,4 @@
 <?php
-
-global $PART_CHILDREN;
-$PART_CHILDREN = [];
-
 class PartRuntime {
   private static $state = null;
   private static $children;
