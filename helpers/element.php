@@ -1,10 +1,37 @@
 <?php
+/* 
+Helper methods for interacting with "dom" elements (as strings)
+
+Element::classes accepts an array and turns it into classes.
+eg. Element::classes([ 'enabled' => true, 'disabled' => false ])
+      -> "enabled"
+    Element::classes(['cls-a', 'cls-b'])
+      -> 'cls-a cls-b'
+    Element::classes([])
+
+Element::fixAspect takes a width and height param and 
+returns the appropriate padding-bottom for an element
+  eg <div style="<?= Element::fixAspect(1, 1) ?>"></div>
+    -> <div style="padding-bottom: 100%;"></div>
+
+Element::attrs adds attributes to an element
+  eg. <div <?= Element::attrs([ 'data-widget="image"' => false, 'sizes' => 128 ]) ?>></div>
+    -> <div sizes="128"></div>
+
+Element::getAttribute is used to extract attributes from a domString
+  eg. Element::getAttribute("<iframe src="google.com"></iframe>", 'src');
+    -> "google.com"
+*/
+
+if (!class_exists('Element')) {
 class Element {
   public static function classes ($arr, $join = true) {
     $classes = [];
     foreach ($arr as $k => $v) {
-      if ($v) {
+      if (is_numeric($k)) {
         $classes[] = $v;
+      } else if ($v) {
+        $classes[] = $k;
       }
     }
     
@@ -86,4 +113,4 @@ class Element {
       }
     }
   }
-}
+}}

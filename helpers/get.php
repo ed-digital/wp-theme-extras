@@ -57,17 +57,20 @@ if (!function_exists('get')) {
   
     return $target === null ? $default : $target;
   }
-}
 
-
-/* 
-Returns a get function with the first method bound to a specific object 
-*/
-if (!function_exists('createGetter')) {
-  function createGetter ($object) {
-    return function ($propDeep = '', $default = null) use ($object) {
-      return get($object, $propDeep, $default);
-    };
+  /* 
+  Returns a get function with the first method bound to a specific object 
+  */
+  if (!function_exists('createGetter')) {
+    function createGetter ($object) {
+      return function ($propDeep = '', $default = null) use ($object) {
+        return get($object, $propDeep, $default);
+      };
+    }
   }
+} else {
+  error_log('Tried including the "get" helpers" but they already exist');
 }
+
+
 ?>

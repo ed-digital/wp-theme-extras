@@ -1,4 +1,8 @@
 <?
+
+/*
+  Some helper methods for colors 
+*/
 if (!class_exists('Colors')) {
   class Colors {
     static function rgbToHex ($rgb) {
@@ -23,5 +27,7 @@ if (!class_exists('Colors')) {
       return $rgb;
     }
   }
+} else {
+  error_log('Tried including helper "colors" but the class already exists');
 }
 ?>

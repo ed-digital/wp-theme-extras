@@ -1,5 +1,16 @@
 <?php
+/* 
+  Helper methods for interacting with the dump command
+  in dev mode
+    "log" and "error" messages are shown
+    "notice" and "warning" messages are hidden
+  in prod mode
+    all messages are hidden
 
+  to enable log levels in production you can add a 
+    "?log=warn,log,error,notice param to the url
+    or just enable dev mode with "?dev=true"
+*/
 if (!class_exists('Console')) {
   class Console {
     static $log = true;
@@ -49,4 +60,6 @@ if (!class_exists('Console')) {
   Console::$notice = Arr::includes($logs, 'notice', false);
   Console::$warning = Arr::includes($logs, 'warning', false);
   Console::$error = is_dev() || Arr::includes($logs, 'error');
+} else {
+  error_log('Tried including helper "console" but the class already exists');
 }
