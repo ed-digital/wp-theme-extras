@@ -26,7 +26,6 @@
       "includeSiteKit" => false,
       "disableAdminBar" => false,
       "autoloadIncludeJS" => false,
-      "loadComponents" => true,
       "useRelativeURLs" => false
     ];
 
@@ -60,6 +59,7 @@
       });
 
       // Load core files
+      require_once(__DIR__ ."/../helpers/index.php");
       $this->loadDir(__DIR__, true);
       $this->API = new ED_API();
 
@@ -96,10 +96,6 @@
       if($this->config["useRelativeURLs"] == true) {
         // Load relative URL sub-plugin
         include_once(__dir__."/../lib/relative-url/relative-url.php");
-      }
-
-      if($this->config["loadComponents"] == true) {
-        ComponentRegistry::loadComponents();
       }
     }
 
@@ -509,16 +505,16 @@
     }
 
     /*
-      Expected the same arguments as "acf_register_block_type", however with a "component" attribute, which must be a string
+      Expected the same arguments as "acf_register_block_type", however with a "part" attribute, which must be a string
     */
     public function addBlock ($def) {
       if (!$def['render_callback']) {
-        if (!$def['component']) {
-          throw new Exception("No 'component' attribute was found when registering a block.");
+        if (!$def['part']) {
+          throw new Exception("No 'part' attribute was found when registering a block.");
         }
         $def['render_callback'] = function(...$args) use ($def) {
           $fields = get_fields();
-          echo C($def['component'], $fields);
+          echo C($def['part'], $fields);
         };
       }
 
