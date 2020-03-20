@@ -207,7 +207,8 @@ class PartLookup {
     $config = get($args, 2, []);
     $meta = get($args, 3, []);
 
-    return $this->call();
+
+    return $this->call($props, $children, $config, $meta);
   }
 
   public function getPath() {
