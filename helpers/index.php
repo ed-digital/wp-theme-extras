@@ -9,3 +9,4 @@ require_once 'fetch.php';
 require_once 'element.php';
 require_once 'image.php';
 require_once 'wp.php';
+require_once 'yoast.php';

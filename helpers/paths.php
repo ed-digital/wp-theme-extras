@@ -44,31 +44,6 @@ if (!class_exists('paths')) {
     public static function match_php_file ($path) {
       return self::has_extension($path, '.php');
     }
-  
-    /* Includes all php files by default */
-    public static function include_all ($path, $match = self::MATCH_PHP_FILE, $includeCurrentDir = true) {    
-      $paths = glob("$path/*");
-    
-      $val = array_reduce(
-        $paths, 
-        function($acc, $item) use ($match, $includeCurrentDir) {
-          if (is_dir($item)) {
-            /* 
-            Always want to include the current directory in a recursive section
-            */
-            $acc = array_merge($acc, self::include_all($item, $match, true));
-          } else if ($includeCurrentDir) {
-            if ($match($item)) {
-              $acc[] = $item;
-            }
-          }
-          return $acc;
-        }, 
-        []
-      );
-    
-      return $val;
-    }
   }
 } else {
   error_log('Tried including helper "paths" but the class already exists');

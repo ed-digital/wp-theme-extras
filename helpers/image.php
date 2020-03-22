@@ -43,11 +43,11 @@ if (!class_exists('image')) {
   
     public static function getSizesFromACF ($img) {
       $sizes = [];
-      foreach ($img['sizes'] as $key=>$val) {
-        if (strstr($img, '-width') !== -1) {
-          $m = [];
-          preg_match("/(.*?)-width/", $key, $m);
-          $sizes[] = $m[1];
+      foreach ($img['sizes'] as $key => $val) {
+        if (strpos($key, '-width') !== false) {
+          $matches = [];
+          preg_match("/(.*?)-width/", $key, $matches);
+          $sizes[] = $matches[1];
         }
       }
       return $sizes;

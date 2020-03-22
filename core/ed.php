@@ -322,6 +322,27 @@
       Loads all .php files in the specified directory in both the child and parent theme, optionally ignoring the parent themes version of the file if the file exists in the child theme
       Uses require_once
     */
+
+    public function getFiles ($directory, $recursive = true, $filter = "Paths::match_php_file") {
+      $paths = glob("$directory/*");
+      $collected = [];
+
+      foreach ($paths as $path) {
+        if (is_dir($path) && $recursive) {
+          $collected = array_merge(
+            $collected,
+            self::getFiles($path, true, $filter)
+          );
+        } else {
+          if ($filter($path)) {
+            $collected[] = $path;
+          }
+        }
+      }
+
+      return $collected;
+    }
+
     public function loadDir($path) {
 
       // Grab a list of files for both parent/child themes
@@ -330,7 +351,6 @@
       foreach($files as $file) {
         require_once($file);
       }
-
     }
 
     /*

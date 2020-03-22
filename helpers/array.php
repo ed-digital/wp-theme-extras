@@ -7,6 +7,7 @@ Some standard array methods with a little bit extra
 
 if (!class_exists('Arr')) {
   class Arr {
+
     public static function map ($arr, $fn) {
       $res = [];
       foreach ($arr as $k => $item) {
@@ -18,9 +19,23 @@ if (!class_exists('Arr')) {
     public static function join($arr, $str = '') {
       return implode($str, $arr);
     }
+
+    public static function filter($arr, $predicate) {
+      $result = [];
+      foreach ($arr as $key => $value) {
+        if ($predicate($value, $key, $arr)) {
+          $result[] = $value;
+        }
+      }
+      return $result;
+    }
   
     public static function last ($arr) {
       return $arr[count($arr) - 1];
+    }
+
+    public static function merge ($arr, ...$arrs) {
+      return array_merge($arr, $arrs);
     }
   
     public static function reduce($arr, $fn, $start) {

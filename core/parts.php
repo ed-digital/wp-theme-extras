@@ -4,6 +4,10 @@ class PartRuntime {
   private static $children;
   static $comment = null;
   static $dir = null;
+
+  static function current () {
+    return Arr::last(self::$state->stack);
+  }
   
   static function setup() {
     if (self::$children) {
@@ -18,7 +22,8 @@ class PartRuntime {
       self::$state = (object)[
         'depth' => 0,
         'used' => (object)[],
-        'stack' => []
+        'stack' => [],
+        'file_to_name' => []
       ];
     }
   }
@@ -33,18 +38,21 @@ class PartRuntime {
     foreach ($types as $ext => $wraps) {
       $file = self::$dir . "/index$ext";
       if (!file_exists($file)) continue;
-      $childrens = file_get_contents($file);
+      $contents = file_get_contents($file);
 
-      $files = self::_glob_recursive(self::$dir . "/**/*".$ext);
+      $files = ED()->getFiles(self::$dir, true, function ($file) use ($ext) {
+        return Paths::has_extension($file, $ext);
+      });
       
       $lines = [];
       foreach ($files as $item) {
-        $lines[] = $wraps[0] . str_replace(self::$dir."/", "./", $item) . $wraps[1];
+        if ($item === $file) continue;
+        $lines[] = $wraps[0] . str_replace(self::$dir."/", "", $item) . $wraps[1];
       }
 
       $newContents = implode("\n", $lines);
 
-      if ($newContents !== $childrens) {
+      if ($newContents !== $contents) {
         file_put_contents($file, $newContents);
       }
     }
@@ -85,7 +93,7 @@ class PartRuntime {
     $name = get($meta, 'name');
 
     PartRuntime::setup();
-    $id = PartRuntime::start($name, $children);
+    PartRuntime::start($name, $file, $children);
 
     /* Errors are swallowed if they happen inside an ob buffer */
     $error = null;
@@ -128,9 +136,8 @@ class PartRuntime {
   }
 }
 
-PartRuntime::$dir = ED()->themePath . '/parts/';
 
-class PartProps {
+class PartMeta {
   function __construct ($props) {
     foreach ($props as $key => $val) {
       $this->$key = $val;
@@ -142,18 +149,6 @@ class PartProps {
   }
 }
 
-function props () {
-  $id = Arr::last(PartRuntime::$stack);
-
-  return new PartProps([
-    'id' => $id,
-  ]);
-}
-
-function children () {
-  $id = Arr::last(PartRuntime::$state->stack);
-  return get(PartRuntime::$children, $id, '');
-}
 
 class PartLookup {
   public function __construct($path = null) {
@@ -229,6 +224,9 @@ class PartLookup {
   }
 }
 
+PartRuntime::$dir = ED()->themePath . '/parts/';
+PartRuntime::buildStyleIndexSheet();
+
 function Part ($path = null, $props = [], $children = '', $config = [], $meta = []) {
   if ($path) {
     $lookup = new PartLookup($path);
@@ -240,4 +238,21 @@ function Part ($path = null, $props = [], $children = '', $config = [], $meta = 
 
 function P(...$args) {
   return Part(...$args);
+}
+
+
+/* Part contextual functions */
+function partMeta () {
+  $id = PartRuntime::current();
+
+  /* PartMeta automatically converts to html attributes when casted to string */
+  return new PartMeta([
+    'id' => $id,
+  ]);
+}
+
+
+function children () {
+  $id = Arr::last(PartRuntime::$state->stack);
+  return get(PartRuntime::$children, $id, '');
 }
