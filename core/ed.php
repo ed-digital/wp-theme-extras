@@ -534,7 +534,7 @@
         }
         $def['render_callback'] = function(...$args) use ($def) {
           $fields = get_fields();
-          echo C($def['part'], $fields);
+          echo Part($def['part'], $fields);
         };
       }
 
