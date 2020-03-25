@@ -213,7 +213,7 @@
           }
         }
         if($url) {
-          @wp_enqueue_script(md5($path), $url . $append, $deps, $version);
+          @wp_enqueue_script(md5($path), $url . $append, $deps, $version, true);
         }
       }
 
