@@ -1,8 +1,8 @@
 <?php
 class PartRuntime {
   private static $state = null;
-  private static $children;
-  static $comment = null;
+  private static $children = null;
+  static $config = null;
   static $dir = null;
 
   static function current () {
@@ -10,13 +10,16 @@ class PartRuntime {
   }
   
   static function setup() {
-    if (self::$children) {
+    if (self::$children === null) {
       self::$children = [];
     }
-    /*  */
-    if (self::$comment === null) {
-      self::$comment = is_dev();
+
+    if (self::$config === null) {
+      self::$config = [
+        'comment' => is_dev()
+      ];
     }
+
     /*  */
     if (self::$state === null) {
       self::$state = (object)[
@@ -88,16 +91,19 @@ class PartRuntime {
     unset(self::$children[$id]);
   }
 
-  static function run($file, $props = [], $children = '', $config = [], $meta = []) {
+  static function run($fileOrFunction, $props = [], $children = '', $config = [], $meta = []) {
+
 
     $name = get($meta, 'name');
 
     PartRuntime::setup();
-    PartRuntime::start($name, $file, $children);
+    PartRuntime::start($name, $fileOrFunction, $children);
+
+    $config = array_merge([], self::$config, $config);
 
     /* Errors are swallowed if they happen inside an ob buffer */
     $error = null;
-    $comment = PartRuntime::$comment && get($config, 'comment') !== false;
+    $comment = get($config, 'comment') !== false;
 
     ob_start();
 
@@ -106,18 +112,40 @@ class PartRuntime {
     
     /* Call the part */
     try {
-      self::include($file, $props);
+      if ( is_callable($fileOrFunction) ) {
+        $fileOrFunction(createGetter($props));
+      } elseif ( is_string($fileOrFunction) ) {
+        self::include($fileOrFunction, $props);
+      }
     } catch (Exception $err) {
+      $error = $err;
+    } catch (Error $err) {
       $error = $err;
     }
 
     if ($error) {
-      $props = json_encode($props, JSON_PRE);
+      $partName = get($meta, 'name');
+      $message = $error->getMessage();
+      $info = @$error->info;
+
       /* Visible error in dev mode */
-      console::error("Part $name errored: {$error['message']} with props: $props");
-      /* Inivisible error in production */
-      $props = esc_html($props);
-      return "<!-- Part $name errored: {$error['message']} with props: $props -->";
+      if (is_dev($message)) {
+        ob_clean();
+        ?>
+        <div class="part-error" style="padding: 0px 16px; margin: 8px 0px; border: currentColor 1px solid;">
+          <pre style="text-align:left; line-height: 1.5;white-space: normal;">
+            <div style="margin-bottom: 8px;"><strong>Part "<?= $partName ?>" errored</strong></div>
+            <div style="margin-bottom: 8px;"><?=$error->getMessage();?></div><? if ($info) { ?><div><?=$info?></div><? } ?><div>Part props:</div>
+          </pre>
+          <? dump($props); ?>
+        </div>
+        <?
+      } else {
+        ob_clean();
+        ?>
+        <!-- " . $message . " with props: $props -->
+        <?
+      }
     }
 
     /* HTML comments are shown during dev */
@@ -178,13 +206,11 @@ class PartLookup {
   public function call($props = [], $children = '', $config = [], $meta = []) {
     $path = $this->getPath();
 
-    $DEFAULT_CONFIG = [];
     $DEFAULT_META = [
       'name' => $this->name,
       'path' => $path
     ];
 
-    $config = array_merge($DEFAULT_CONFIG, $config);
     $meta = array_merge($DEFAULT_META, $meta);
 
     return PartRuntime::run($path, $props, $children, $config, $meta);
@@ -227,10 +253,18 @@ class PartLookup {
 PartRuntime::$dir = ED()->themePath . '/parts/';
 PartRuntime::buildStyleIndexSheet();
 
-function Part ($path = null, $props = [], $children = '', $config = [], $meta = []) {
-  if ($path) {
-    $lookup = new PartLookup($path);
-    return $lookup->call($props, $children, $config, $meta);
+
+
+function Part ($pathOrCallback = null, $props = [], $children = '', $config = [], $meta = []) {
+  if ($pathOrCallback) {
+    if ( is_callable($pathOrCallback) ) {
+      $name = 'Anonymous' . uniqid();
+      $meta = array_merge(['path' => null, 'name' => $id ]);
+      return PartRuntime::run($pathOrCallback, $props, $children, $config, $meta);
+    } elseif ( is_string($pathOrCallback) ) {
+      $lookup = new PartLookup($pathOrCallback);
+      return $lookup->call($props, $children, $config, $meta);
+    }
   } else {
     return new PartLookup();
   }

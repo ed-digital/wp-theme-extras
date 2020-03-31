@@ -49,5 +49,24 @@ if (!class_exists('Arr')) {
     public static function includes ($arr, $value) {
       return in_array($value, $arr);
     }
+
+    /* 
+    Will flatten all the nested arrays into one
+    "numbered" indexes will be pushed onto the end of the result
+    "named" indexes will be merged in
+    */
+    public static function flatten ($arr) {
+      $result = [];
+      array_walk_recursive(
+        $arr,
+        function ($item, $key) use ($result) {
+          if (is_int($key) || preg_match("/^[0-9]+$/", $key)) {
+            $result[] = $key;
+          } else {
+            $result[$key] = $item;
+          }
+        }
+      );
+    }
   }
 }
