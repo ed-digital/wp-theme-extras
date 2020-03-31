@@ -135,7 +135,9 @@ class PartRuntime {
         <div class="part-error" style="padding: 0px 16px; margin: 8px 0px; border: currentColor 1px solid;">
           <pre style="text-align:left; line-height: 1.5;white-space: normal;">
             <div style="margin-bottom: 8px;"><strong>Part "<?= $partName ?>" errored</strong></div>
-            <div style="margin-bottom: 8px;"><?=$error->getMessage();?></div><? if ($info) { ?><div><?=$info?></div><? } ?><div>Part props:</div>
+            <div style="margin-bottom: 8px;"><?=$error->getMessage();?></div>
+            <div style="margin-bottom: 8px;"><?=$error->getTraceAsString(); ?></div>
+            <? if ($info) { ?><div><?=$info?></div><? } ?><div>Part props:</div>
           </pre>
           <? dump($props); ?>
         </div>
