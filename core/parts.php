@@ -1,18 +1,51 @@
 <?php
+
+/* 
+PartRuntime::$state {
+  stack => string(id)[],
+  depth => number,
+  used => [ string(id) => number ],
+  children => [ string(id) => string ],
+  context => [ string(id) => any ]
+}
+*/
+
 class PartRuntime {
   private static $state = null;
-  private static $children = null;
   static $config = null;
   static $dir = null;
-
-  static function current () {
+  
+  static function getState() {
+    return self::$state;
+  }
+  static function getCurrentID () {
     return Arr::last(self::$state->stack);
+  }
+  static function getCurrentChildren() {
+    $id = self::getCurrentID();
+    return self::$state->children[$id];
+  }
+
+  static function setContext($context) {
+    $id = self::getCurrentID();
+    self::$state->context[$id] = $context;
+  }
+
+  static function getContext($key) {
+    $stack = self::$state->stack;
+    $stackLen = count($stack);
+    for ($i = $stackLen - 1; $i > -1; $i--) {
+      $id = $stack[$i];
+      $context = self::$state->context[$id];
+      $val = get($key, $context);
+      if ($val !== null) {
+        return $val;
+      }
+    }
+    return null;
   }
   
   static function setup() {
-    if (self::$children === null) {
-      self::$children = [];
-    }
 
     if (self::$config === null) {
       self::$config = [
@@ -26,12 +59,13 @@ class PartRuntime {
         'depth' => 0,
         'used' => (object)[],
         'stack' => [],
-        'file_to_name' => []
+        'children' => []
       ];
     }
   }
 
   static function buildStyleIndexSheet () {
+    if (!is_dev()) return;
 
     $types = [
       '.scss' => ['@import "', '";'],
@@ -80,7 +114,7 @@ class PartRuntime {
     $id = $name . $currentIndex;
   
     self::$state->stack[] = $id;
-    self::$children[$id] = $children;
+    self::$state->children[$id] = $children;
 
     return $id;
   }
@@ -88,7 +122,7 @@ class PartRuntime {
   public function end () {
     self::$state->depth -= 1;
     $id = array_pop(self::$state->stack);
-    unset(self::$children[$id]);
+    unset(self::$state->children[$id]);
   }
 
   static function run($fileOrFunction, $props = [], $children = '', $config = [], $meta = []) {
@@ -97,7 +131,7 @@ class PartRuntime {
     $name = get($meta, 'name');
 
     PartRuntime::setup();
-    PartRuntime::start($name, $fileOrFunction, $children);
+    PartRuntime::start($name, $children);
 
     $config = array_merge([], self::$config, $config);
 
@@ -277,9 +311,10 @@ function P(...$args) {
 }
 
 
-/* Part contextual functions */
+/* Part functions that rely on contextual data */
+
 function partMeta () {
-  $id = PartRuntime::current();
+  $id = PartRuntime::getCurrentID();
 
   /* PartMeta automatically converts to html attributes when casted to string */
   return new PartMeta([
@@ -287,8 +322,14 @@ function partMeta () {
   ]);
 }
 
+function slot () {
+  return PartRuntime::getCurrentChildren();
+}
 
-function children () {
-  $id = Arr::last(PartRuntime::$state->stack);
-  return get(PartRuntime::$children, $id, '');
+function setContext ($context) {
+  return PartRuntime::setContext($key);
+}
+
+function getContext ($key) {
+  return PartRuntime::getContext($key);
 }
