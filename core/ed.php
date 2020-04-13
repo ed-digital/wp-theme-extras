@@ -318,11 +318,9 @@
 
     }
 
-    /*
-      Loads all .php files in the specified directory in both the child and parent theme, optionally ignoring the parent themes version of the file if the file exists in the child theme
-      Uses require_once
+    /* 
+    Get a list of file names that match $filter
     */
-
     public function getFiles ($directory, $recursive = true, $filter = "Paths::match_php_file") {
       $paths = glob("$directory/*");
       $collected = [];
