@@ -12,7 +12,7 @@ if (!class_exists('Color')) {
       return 'hex';
     } else if (strpos($color, 'rgb') === 0) {
       return 'rgb';
-    } else if (strpos('hsl')) {
+    } else if (strpos($color, 'hsl') === 0) {
       return 'hls';
     }
   }
