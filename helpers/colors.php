@@ -17,6 +17,14 @@ if (!class_exists('Color')) {
     }
   }
 
+  function color_percent_to_decimal ($percent) {
+    if (strpos($percent, '%') !== 'false') {
+      return @(substr($percent, 0, -1) / 100);
+    } else {
+      return $percent;
+    }
+  }
+
   /* Always stores colors as rgba */
   class Color {
     function __construct($color = "#000000"){
@@ -29,6 +37,7 @@ if (!class_exists('Color')) {
 
     static function convert_to_rgba_array ($color) {
       $type = color_type($color);
+      dump($type, $color);
       /* Always convert the color to an rgb array */
       switch ($type) {
         case "rgb_array": {
@@ -41,16 +50,17 @@ if (!class_exists('Color')) {
         }
         case "rgb": {
           $parts = Arr::map(
-            explode(", ", preg_replace("/^rgba?\\\(.*?\\\)$/", "", $color)),
+            explode(", ", preg_replace("/^rgba?\\\(\\\)$/", "", $color)),
             function ($item) {
-              return 0+(trim($item));
+              dump($item);
+              return @(+(trim($item)));
             }
           );
 
           return Color::convert_to_rgba_array($parts);
         }
         case "hex": {
-          $hex = str_replace('#', '', $hex);
+          $hex = str_replace('#', '', $color);
           $length = strlen($hex);
       
           $r = hexdec($length == 6 ? substr($hex, 0, 2) : ($length == 3 ? str_repeat(substr($hex, 0, 1), 2) : 0));
@@ -60,6 +70,16 @@ if (!class_exists('Color')) {
           return [$r, $g, $b, 1];
         }
         case "hls": {
+          $parts = Arr::map(
+            explode(", ", preg_replace("/^hsl\\\(.*?\\\)$/", "", $color)),
+            function ($item) {
+              return color_percent_to_decimal(trim($item));
+            }
+          );
+          $h = $parts[0];
+          $s = $parts[1];
+          $l = $parts[2];
+
           $r; 
           $g; 
           $b;
