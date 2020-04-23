@@ -544,6 +544,11 @@
       }
     }
 
+    public function whitelistBlocks (...$blockNames) {
+      foreach ($blockNames as $blockName) {
+        $this->whitelistBlock($blockName);
+      }
+    }
     public function whitelistBlock($blockName) {
       $this->blockWhitelist[] = $blockName;
     }
