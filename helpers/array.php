@@ -68,5 +68,23 @@ if (!class_exists('Arr')) {
         }
       );
     }
+
+    public static function list($arr, $glue = ", ", $final = "and ") {
+      $result = '';
+      $len = count($arr);
+      foreach ($arr as $k => $item) {
+        $last = $k === $len - 1;
+        if (!$k && $last) {
+          return $item;
+        } else if (!$k) {
+          $result .= $item;
+        } else if ($last) {
+          $result .= $final . $item;
+        } else {
+          $result .= $glue . $item;
+        }
+      }
+      return $result;
+    }
   }
 }

@@ -158,30 +158,13 @@ class PartRuntime {
     }
 
     if ($error) {
-      $partName = get($meta, 'name');
-      $message = $error->getMessage();
-      $info = @$error->info;
-
       /* Visible error in dev mode */
       if (is_dev($message)) {
-        ob_clean();
-        ?>
-        <div class="part-error" style="padding: 0px 16px; margin: 8px 0px; border: currentColor 1px solid;">
-          <pre style="text-align:left; line-height: 1.5;white-space: normal;">
-            <div style="margin-bottom: 8px;"><strong>Part "<?= $partName ?>" errored</strong></div>
-            <div style="margin-bottom: 8px;"><?=$error->getMessage();?></div>
-            <div style="margin-bottom: 8px;"><?=$error->getTraceAsString(); ?></div>
-            <? if ($info) { ?><div><?=$info?></div><? } ?><div>Part props:</div>
-          </pre>
-          <? dump($props); ?>
-        </div>
-        <?
-      } else {
-        ob_clean();
-        ?>
-        <!-- " . $message . " with props: $props -->
-        <?
+        $partName = get($meta, 'name');
+        printPartError($error, $partName, $props);
       }
+
+      return '';
     }
 
     /* HTML comments are shown during dev */
@@ -308,6 +291,176 @@ function Part ($pathOrCallback = null, $props = [], $children = '', $config = []
 
 function P(...$args) {
   return Part(...$args);
+}
+
+function printPartError($error, $partName, $props) {
+  $id = uniqid('err-');
+  ob_clean();
+  $trace = $error->getTrace();
+  // dump($trace);
+  ?>
+  <style>
+    .part-error {
+      --bg: #292D3E;
+      --comment: #697098;
+      --fn-name: #82AAFF;
+      --cls-name: #ffcb6b;
+      --variable: #bec5d4;
+      --param: #7986E7;
+      --punctuation: #bfc7d5;
+      --string: #C3E88D;
+      --color: var(--punctuation);
+      background: var(--bg);
+      color: var(--color);
+      padding: 25px 20px;
+      margin: 40px 20px;
+      border: currentColor 1px solid;
+      font-weight: 400;
+      overflow: scroll;
+      border-radius: 30px;
+      font-size: 15px;
+      box-shadow: 0px 8px 25px 0px rgba(0, 0, 0, 0.5);
+    }
+    
+    .part-error strong {
+      /* color: white; */
+    }
+
+    .part-error .code {
+      font-family: hasklig, monospace;
+    }
+
+    .part-error .string {
+      color: var(--string);
+    }
+
+    .part-error .function {
+      color: var(--fn-name);
+    }
+
+    .part-error .class {
+      color: var(--cls-name);
+    }
+
+    .part-error .punctuation {
+      color: var(--punctuation);
+    }
+
+    .part-error .param {
+      color: var(--param);
+    }
+
+    .part-error .var {
+      color: var(--variable);
+    }
+
+    .part-error .comment {
+      color: var(--comment);
+    }
+
+    .part-error a {
+      color: var(--comment);
+    }
+
+    .part-error a:hover {
+      color: var(--color);
+    }
+
+    .part-error .hidden-toggle {
+      position: absolute;
+      right: 0;
+      top: 0;
+      cursor: pointer;
+    }
+
+    .part-error .hidden-toggle svg {
+      position: absolute;
+      top: 0;
+      right: 0;
+      fill: var(--comment);
+    }
+
+    .part-error .hidden-toggle:hover svg {
+      fill: var(--color);
+    }
+
+    .part-error.hidden .hidden {
+      display:none;
+    }
+
+    .part-error:not(.hidden) .visible {
+      display: none;
+    }
+
+    .part-error a[data-log]:hover {
+      color: var(--color);
+    }
+
+    .part-error .error {
+      text-align: left;
+      line-height: 1.5;
+      white-space: normal;
+      position: relative;
+    }
+
+    .part-error .file {
+      font-family: Consolas, Menlo, monospace;
+    }
+
+    .part-error .line {
+      margin-bottom: 8px;
+    }
+  </style>
+  <div class="part-error hidden" id="<?=$id?>">
+    <div class="error">
+      <div class="hidden-toggle">
+        <svg class="visible" xmlns="http://www.w3.org/2000/svg" fill="currentColor" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0zm0 0h24v24H0zm0 0h24v24H0zm0 0h24v24H0z" fill="none"/><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
+        <svg class="hidden" xmlns="http://www.w3.org/2000/svg" fill="currentColor" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      </div>
+      <div class="line"><strong>Part "<?= $partName ?>" errored</strong></div>
+      <div class="line">
+      <a href="vscode://file/<?= ltrim($error->getFile(), '/'); ?>:<?= $error->getLine(); ?>">
+            <?= preg_replace("/.*\/wp-content\/.*?\/.*?\//", './', $error->getFile()) ?>:<?= $error->getLine(); ?>
+          </a><span>&nbsp;––&nbsp;</span><span class="code"><span class="function">Part()</span><span class="punctuation">-></span><span class="class"><?=$partName?></span>( <a class="param" href="#" data-log="<?=esc_attr(JSON::stringify($props));?>">...$props</a> )</span><span>&nbsp;:&nbsp;</span><span class="string"><?=$error->getMessage();?></span></span></div>
+      <div class="line">
+        <div class="comment">Trace:</div>
+        <? 
+        foreach ($trace as $k => $err) { 
+          $hidden = strpos($err['file'], 'wp-content') === false || (strpos($err['file'], 'vendor') !== false);
+          $label = preg_replace("/.*\/wp-content\/.*?\/.*?\//", './', $err['file']);
+          ?>
+        <div <?= $hidden ? "class='hidden'" : '' ?>>
+          <a href="vscode://file/<?= ltrim($err["file"], '/'); ?>:<?= $err['line']; ?>">
+            <?= $label; ?>:<?= $err['line']; ?>
+          </a><span>&nbsp;––&nbsp;</span>
+          <span class="code">
+          <span class="class"><?= $err['class'] ?? ''; ?></span><span class="punctuation"><?= $err['type'] ?? ''; ?></span><span class="function"><?= $err['function'] ?></span>( 
+            <a class="param" href="#" data-log="<?=esc_attr(JSON::stringify($err['args']));?>">...$args</a> )
+          </span></span>
+        </div>
+        <? } 
+        ?>
+      </div>
+    </div>
+  </div>
+  <script data-error="<?=$id?>">
+    ;(function () {
+      var error = document.querySelector("#<?=$id?>")
+      var loggers = error.querySelectorAll('[data-log]')
+      var toggle = error.querySelector(".hidden-toggle")
+      toggle.onclick = function (e) {
+        e.preventDefault()
+        error.classList.toggle('hidden')
+      }
+      for (let element of loggers) {
+        element.onclick = function (e) {
+          e.preventDefault()
+          console.log(JSON.parse(element.dataset.log))
+        }
+      }
+    })()
+  </script>
+  <?
 }
 
 
