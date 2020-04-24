@@ -37,7 +37,6 @@ if (!class_exists('Color')) {
 
     static function convert_to_rgba_array ($color) {
       $type = color_type($color);
-      dump($type, $color);
       /* Always convert the color to an rgb array */
       switch ($type) {
         case "rgb_array": {
