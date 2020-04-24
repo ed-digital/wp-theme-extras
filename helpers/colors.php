@@ -51,7 +51,6 @@ if (!class_exists('Color')) {
           $parts = Arr::map(
             explode(", ", preg_replace("/^rgba?\\\(\\\)$/", "", $color)),
             function ($item) {
-              dump($item);
               return @(+(trim($item)));
             }
           );
@@ -123,7 +122,7 @@ if (!class_exists('Color')) {
     }
 
     function hex () {
-      return '#' . dechex($this->r) . dechex($this->g) . dechex($this->b);
+      return '#' . str_pad(dechex($this->r), 2, '0') . str_pad(dechex($this->g), 2, '0') . str_pad(dechex($this->b), 2, '0');
     }
 
     function rgb () {
