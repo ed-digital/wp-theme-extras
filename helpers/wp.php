@@ -20,8 +20,13 @@ if (!class_exists('WPHelpers')) {
       $items = [];
   
       global $post;
+
+      $links = wp_get_nav_menu_items(self::getMenuSlugAtLocation($slug));
+      if (!$links) {
+        $links = wp_get_nav_menu_items($slug);
+      }
   
-      foreach (wp_get_nav_menu_items($slug) as $item) {
+      foreach ($links as $item) {
         $item->children = [];
         $item->link_id = $item->ID;
         $item->ID = $item->object_id;
@@ -43,12 +48,13 @@ if (!class_exists('WPHelpers')) {
           $items[$k]->has_children = true;
           usort(
             $items[$k]->children,
-            self::sortByMenuOrder
+            "self::sortByMenuOrder"
           );    
         }
       }
   
   
+      /* Remove items at the root of the array that have parents */
       $items = array_filter(
         $items,
         function ($item) {
@@ -56,13 +62,19 @@ if (!class_exists('WPHelpers')) {
         }
       );
   
-      usort($items, self::sortByMenuOrder);
+      usort($items, "self::sortByMenuOrder");
   
       foreach ($items as $item) {
         self::addLevel($item);
       }
   
       return $items;
+    }
+
+    static function getMenuSlugAtLocation ($location) {
+      $theme_locations = get_nav_menu_locations();
+      $menu_obj = get_term($theme_locations[$location], 'nav_menu');
+      return $menu_obj->slug;
     }
   
     static function getFrontPage () {
