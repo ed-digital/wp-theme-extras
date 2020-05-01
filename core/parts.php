@@ -223,7 +223,14 @@ class PartLookup {
   }
 
   public function call($props = [], $children = '', $config = [], $meta = []) {
-    $path = $this->getPath();
+    try {
+      $path = $this->getPath();
+    } catch (Exception $err) {
+      if (is_dev()) {
+        printPartError($err, $this->name, $props);
+        return '';
+      }
+    }
 
     $DEFAULT_META = [
       'name' => $this->name,
@@ -262,7 +269,7 @@ class PartLookup {
       /* Looks like we got the right path */
       return $path . '.php';
     } else {
-      throw new Exception("Part \"$path\" doesnt exist.");
+      throw new Exception("Part <span class='visible'>\"{$this->name}\"</span><span class='hidden'>\"$path\"</span> doesnt exist.");
     }
 
     return $path;
@@ -316,7 +323,7 @@ function printPartError($error, $partName, $props) {
       margin: 40px 20px;
       border: currentColor 1px solid;
       font-weight: 400;
-      overflow: scroll;
+      overflow: auto;
       border-radius: 30px;
       font-size: 15px;
       box-shadow: 0px 8px 25px 0px rgba(0, 0, 0, 0.5);
