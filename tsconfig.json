@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "lib": ["ES2020", "DOM"],
+    "strict": false
+  },
+  "include": ["./admin.ts"]
+}
