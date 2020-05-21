@@ -143,6 +143,11 @@
       } else {
         $opts = array_merge([ 'name' => $id ], $labelOrOpts);
       }
+
+      if (!isset($opts['part'])) {
+        $opts['part'] = new PartLookup("templates/$id");
+      }
+
       $this->templates[$id] = $opts;
     }
 
