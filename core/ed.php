@@ -562,21 +562,6 @@
 
   }
 
-  function dump() {
-    if(error_reporting() === 0) return;
-
-    echo "<pre># ";
-    foreach(func_get_args() as $item) {
-      if(is_array($item) || is_object($item)) {
-        print_r($item);
-      } else {
-        echo json_encode($item);
-      }
-      echo " ";
-    }
-    echo "</pre>";
-  }
-
   function ED() {
     return ED::getInstance();
   }

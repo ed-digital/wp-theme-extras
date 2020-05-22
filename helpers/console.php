@@ -11,13 +11,39 @@
     "?log=warn,log,error,notice param to the url
     or just enable dev mode with "?dev=true"
 */
+
+function dump() {
+  if(error_reporting() === 0) return;
+
+  echo "<pre># ";
+  foreach(func_get_args() as $item) {
+    if(is_array($item) || is_object($item)) {
+      print_r(esc_html($item));
+    } else {
+      echo esc_html(json_encode($item));
+    }
+    echo " ";
+  }
+  echo "</pre>";
+}
+
 if (!class_exists('Console')) {
   class Console {
     static $log = true;
     static $notice = true;
     static $warning = true;
     static $error = true;
-  
+
+    public static function error_log () { 
+      foreach(func_get_args() as $item) {
+        if(is_array($item) || is_object($item)) {
+          print_r($item);
+        } else {
+          echo json_encode($item);
+        }
+        echo " ";
+      }
+    }
   
     /* Log to the client */
     public static function log (...$args) {
