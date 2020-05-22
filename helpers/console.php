@@ -18,7 +18,7 @@ function dump() {
   echo "<pre># ";
   foreach(func_get_args() as $item) {
     if(is_array($item) || is_object($item)) {
-      print_r(esc_html($item));
+      echo htmlentities(print_r($item, true));
     } else {
       echo esc_html(json_encode($item));
     }
