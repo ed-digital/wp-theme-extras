@@ -86,5 +86,16 @@ if (!class_exists('Arr')) {
       }
       return $result;
     }
+
+    public static function create($len) {
+      $result = [];
+  
+      for ($i = 0; $i < $len; $i++) {
+        $result[] = $i;
+      }
+  
+      return $result;
+    }
   }
+
 }
