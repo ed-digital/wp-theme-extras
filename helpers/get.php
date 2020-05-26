@@ -33,7 +33,7 @@ if (!function_exists('get')) {
       Return the original $arr if there is no index
     */
     if ($index === null || $index === '' || !isset($index)) {
-      return $arr;
+      return $obj;
     }
   
     $paths = explode('.', $index);
