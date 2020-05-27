@@ -178,6 +178,7 @@ class PartRuntime {
   }
 
   static function include($file, $args) {
+    global $post;
     $arg = createGetter($args);
     include($file);
   }
