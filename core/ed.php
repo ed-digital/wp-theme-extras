@@ -152,6 +152,7 @@
     }
 
     public function getTemplate($id) {
+      if (!$id) return null;
       return get($this->templates, $id);
     }
 
