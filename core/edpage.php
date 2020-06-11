@@ -49,21 +49,26 @@
 		
 		public function executeMain($__name, $__template) {
 			
-			global $post;
-			
- 			ob_start();
- 			
- 			$this->_endCapture = false;
+      global $post;
       
-      if ($__template) {
-        include($__template);
+      $customTemplate = ED()->getTemplate(get_page_template_slug($this->originalPost));
+
+      if ($customTemplate) {
+        $this->content[$__name] = $customTemplate['part']->call();
+      } else {
+        ob_start();
+        
+        $this->_endCapture = false;
+       
+       if ($__template) {
+         include($__template);
+       }
+       
+       if($this->_endCapture == false) {
+          $this->content[$__name] = ob_get_contents();
+          ob_end_clean();
+        }
       }
-			
-			if($this->_endCapture == false) {
-	 			$this->content[$__name] = ob_get_contents();
-	 			ob_end_clean();
-	 		}
-			
 		}
 		
 		// Stops capture from executeMain.
@@ -133,7 +138,6 @@
 	}
 	
 	add_filter('template_include', function($main) {
-		
 		if(ED()->config['useBase'] == false) return $main;
 		
 		// Check for other filters returning null
@@ -141,7 +145,7 @@
 			return $main;
 		}
 		
-		$page = new EDPage($main);
+    $page = new EDPage($main);
 		
 		return ED()->edPath."/wrapper/bootstrap.php";
 
