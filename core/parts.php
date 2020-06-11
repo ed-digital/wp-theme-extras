@@ -8,36 +8,42 @@ PartRuntime::$state {
   children => [ string(id) => string ],
   context => [ string(id) => any ]
 }
+
+Partruntime::$state {
+  // Keeps trach of the current stack depth
+  depth => number,
+  // Keeps track of how many times each part has been used in order to create the ids
+  used => [ string(id) => number ],
+  stack => [
+    string(id) => [
+      id => string
+      props => [ string => any ],
+      children => [ string => (string | callback) ] | string | callback,
+      context => [ string => any ]
+    ]
+  ]
+}
 */
 
 class PartRuntime {
-  private static $state = null;
+  static $state = null;
   static $config = null;
   static $dir = null;
   
-  static function getState() {
-    return self::$state;
-  }
-  static function getCurrentID () {
-    return Arr::last(self::$state->stack);
-  }
-  static function getCurrentChildren() {
-    $id = self::getCurrentID();
-    return self::$state->children[$id];
+  static function getCurrent () {
+    return self::$state->stack[self::currentDepth() - 1];
   }
 
   static function setContext($context) {
-    $id = self::getCurrentID();
-    self::$state->context[$id] = $context;
+    $stack = self::getCurrent();
+    $stack->context = array_merge($stack->context, $context);
   }
 
   static function getContext($key) {
-    $stack = self::$state->stack;
-    $stackLen = count($stack);
-    for ($i = $stackLen - 1; $i > -1; $i--) {
-      $id = $stack[$i];
-      $context = self::$state->context[$id];
-      $val = get($key, $context);
+    for ($i = count(self::$stack) - 1; $i >= 0; $i--) {
+      $fiber = self::$stack[$i];
+      $context = $fiber->context;
+      $val = get($context, $key);
       if ($val !== null) {
         return $val;
       }
@@ -59,7 +65,6 @@ class PartRuntime {
         'depth' => 0,
         'used' => (object)[],
         'stack' => [],
-        'children' => []
       ];
     }
   }
@@ -96,42 +101,48 @@ class PartRuntime {
     
   }
 
+  // Current stack depth
   public static function currentDepth () {
     return get(self::$state, 'depth');
   }
 
+  // Amount of times a particular part has been used (by part name)
   public static function usedCount ($name) {
     return get(self::$state, "used.$name", 0);
   }
 
-  public static function start ($name, $children) {
+  // Setup a Part
+  public static function start ($name, $props, $children) {
     self::$state->depth += 1;
 
     /* How many times this component has been called on this particular page */
     $currentIndex = self::usedCount($name);
     self::$state->used->{$name} = $currentIndex + 1;
 
-    $id = $name . $currentIndex;
+    $id = $name . '_' . $currentIndex;
   
-    self::$state->stack[] = $id;
-    self::$state->children[$id] = $children;
+    self::$state->stack[] = (object)[
+      'id' => $id,
+      'depth' => self::$state->depth,
+      'props' => $props,
+      'children' => $children,
+      'context' => [],
+    ];
 
     return $id;
   }
 
+  // Complete a part
   public function end () {
+    array_pop(self::$state->stack);
     self::$state->depth -= 1;
-    $id = array_pop(self::$state->stack);
-    unset(self::$state->children[$id]);
   }
 
   static function run($fileOrFunction, $props = [], $children = '', $config = [], $meta = []) {
-
-
     $name = get($meta, 'name');
 
     PartRuntime::setup();
-    PartRuntime::start($name, $children);
+    PartRuntime::start($name, $props, $children);
 
     $config = array_merge([], self::$config, $config);
 
@@ -301,16 +312,28 @@ PartRuntime::buildStyleIndexSheet();
 
 
 function Part ($pathOrCallback = null, $props = [], $children = '', $config = [], $meta = []) {
+  /* 
+  When Part is called with arguments 
+  - If the first arg is a string it creates a file lookup on that string
+  - If the first arg is an anonymous fn it runs the fn as if it was a part
+  */
   if ($pathOrCallback) {
-    if ( is_callable($pathOrCallback) ) {
-      $name = 'Anonymous' . uniqid();
-      $meta = array_merge(['path' => null, 'name' => $id ]);
-      return PartRuntime::run($pathOrCallback, $props, $children, $config, $meta);
-    } elseif ( is_string($pathOrCallback) ) {
-      $lookup = new PartLookup($pathOrCallback);
+    /* Run the callback as if it was a part file */
+    if (is_callable($pathOrCallback)) {
+      $callback = $pathOrCallback;
+      if (!isset($meta['name'])) {
+        $meta['name'] = 'Anonymous_' . uniqid();
+      }
+      $meta = array_merge($meta, [ 'path' => null ]);
+      return PartRuntime::run($callback, $props, $children, $config, $meta);
+    } elseif (is_string($pathOrCallback)) {
+      $path = $pathOrCallback;
+      /* Run the part at $pathOrCallback with the rest of the args */
+      $lookup = new PartLookup($path);
       return $lookup->call($props, $children, $config, $meta);
     }
   } else {
+    /* When Part is called with no arguments it returns a lookup object */
     return new PartLookup();
   }
 }
@@ -502,15 +525,30 @@ function partMeta () {
   ]);
 }
 
-function slot () {
-  return PartRuntime::getCurrentChildren();
+/* 
+First param is always the name of the slot defaulting to "defaul"
+ */
+function slot ($slotName = null, ...$args) {
+  $slotName = $slotName ?? "default";
+  $children = PartRuntime::getCurrent()->children;
+
+  if ((is_object($children) && !is_callable($children)) || is_array($children)) {
+    $children = get($children, $slotName ?? "default", "");
+  }
+  if (is_callable($children)) {
+    ob_start();
+    echo Part($children, [], null, [], [ 'name' => "Slot_$slotName" ]);
+    return ob_get_clean();
+  }
+  return $children;
 }
 
-function props () {
-  return PartRuntime::getCurrentID();
+function prop ($key = null, $default = null) {
+  $stack = PartRuntime::getCurrent();
+  return get($stack->props, $key, $default);
 }
 
-function setContext ($context) {
+function setContext ($key, $context) {
   return PartRuntime::setContext($key);
 }
 
