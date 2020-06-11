@@ -1,0 +1,6 @@
+{
+  "name": "wp-theme-extras",
+  "scripts": {
+    "build": "tsc"
+  }
+}

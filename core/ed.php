@@ -7,6 +7,7 @@
     public $moduleFieldGroups = null;
     public $postTypeColumns = [];
     public $postTypeColumnManagers = [];
+    public $templates = [];
 
     public $themeURL = null;
     public $themePath = null;
@@ -70,6 +71,7 @@
 
       // Include stuff
       $this->loadDir($this->themePath."/includes");
+      $this->initTemplates();
 
       add_action("init", array($this, "wpInit"));
 
@@ -85,6 +87,7 @@
         }
         return $newList;
       });
+
 
       add_action('admin_head', array($this, "_hookListingColumns"));
       add_action('admin_notices', array($this, '_showPluginWarnings'));
@@ -114,6 +117,126 @@
         flush_rewrite_rules();
         update_option("routes_hash", $hash, true);
       }
+    }
+
+    /* 
+    ED()->addTemplate()
+    Registers a wordpress page template so you don't have to create an unused template-{name}.php file
+    usage:
+      ED()->addTemplate("my-template", "My Template");
+      ED()->addTemplate("my-template", [
+        "label" => "My Template",
+        "gutenberg" => false,
+        "supports" => ["title"]
+      ])
+    */
+    public function addTemplate($id, $labelOrOpts = null) {
+      if (!$this->templates) {
+        $this->templates = [];
+      }
+      /* By default the theme name will be the id */
+      $labelOrOpts = $labelOrOpts ?? $id;
+      /* Form labelOrOpts into an array */
+      $opts;
+      if (is_string($labelOrOpts)) {
+        $opts = [ 'name' => $id, 'label' => $labelOrOpts ];
+      } else {
+        $opts = array_merge([ 'name' => $id ], $labelOrOpts);
+      }
+
+      if (!isset($opts['part'])) {
+        $opts['part'] = new PartLookup("templates/$id");
+      }
+
+      $this->templates[$id] = $opts;
+    }
+
+    public function getTemplate($id) {
+      return get($this->templates, $id);
+    }
+
+    private function initTemplates () {
+      add_filter(
+        'theme_page_templates', 
+        function($templates) {
+          $values = [];
+          foreach ($this->templates as $k => $template) {
+            $values[$k] = $template['label'];
+          }
+          return array_merge(
+            $templates, 
+            $values
+          );
+        }
+      );
+
+      /* Disable gutenberg on templates that don't support it */
+      add_filter(
+        "use_block_editor_for_post",
+        function ($useEditor, $post) {
+          $template = get_page_template_slug($post->ID);
+
+          if ($template) {
+            foreach ($this->templates as $config) {
+              if ($config['name'] === $template) {
+                if (isset($config['gutenberg'])) {
+                  return $config['gutenberg'];
+                }
+              }
+            }
+          }
+
+          return $useEditor;
+        },
+        10, 2
+      );
+
+      add_action('admin_enqueue_scripts', function() {
+        wp_enqueue_script('theme-admin', ED()->themeURL."/vendor/ed-digital/wp-theme-extras/dist/admin.js", ['wp-blocks', 'wp-editor', 'wp-edit-post', 'wp-dom-ready']);
+      });
+
+      /* Enable the template['supports'] array */
+      add_filter('admin_init', function (...$args) {
+        $postID = get($_GET, 'post', null) ??  get($_POST, 'post_ID');
+      
+        if (!$postID) return;
+      
+        $post = get_post($postID);
+      
+        $currentTemplate = get_page_template_slug($postID);
+      
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+          if ($currentTemplate == "" && $post->post_content == "") {
+            $post->post_content = apply_filters("default_content", $post->post_content, $post);
+            wp_update_post($post);
+          }
+        }
+      
+        $template = ED()->getTemplate($currentTemplate);
+      
+        if (get($template, 'supports')) {
+          $allFeatures = ['title', 'editor', 'author', 'thumbnail', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'revisions', 'page-attributes', 'post-formats'];
+          $toRemove = [];
+            
+          foreach ($allFeatures as $feature) {
+            if (!in_array($feature, $template['supports'])) {
+              remove_post_type_support($post->post_type, $feature);
+            }
+          }
+        }
+      }, 10, 10);
+
+      /* Add template config to wordpress head */
+      add_action(
+        'admin_head', 
+        function () {
+          ?>
+          <script type="text/javascript">
+            window._ED_TEMPLATES = <?=json_encode($this->templates);?>;
+          </script>
+          <?
+        }
+      );
     }
 
     public function _showInvalidSetup() {

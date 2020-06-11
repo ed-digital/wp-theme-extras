@@ -178,6 +178,7 @@ class PartRuntime {
   }
 
   static function include($file, $args) {
+    global $post;
     $arg = createGetter($args);
     include($file);
   }
@@ -203,7 +204,16 @@ class PartLookup {
     $this->name = $path ? Arr::last($this->pointer) : "";
   }
 
+  /* 
+  AAAHeading -> aaa-heading
+  SydneyFilmFestival -> sydney-film-festival
+  Image -> image
+  */
   public static function getPathName($str) {
+    /* 
+    "Not whitespace" adds the character before the group match into the matches array
+    [^ ]
+    */
     return strtolower(
         preg_replace_callback(
         "/[^ ]([A-Z][a-z])/",
@@ -212,6 +222,16 @@ class PartLookup {
         },
         $str
       )
+    );
+  }
+
+  public static function getPartName($path) {
+    return preg_replace_callback(
+      "/-([a-z])/",
+      function ($matches) {
+        return str_replace($matches[0], ucfirst($matches[1]), $matches[0]);
+      },
+      $path
     );
   }
 
@@ -280,7 +300,6 @@ PartRuntime::$dir = ED()->themePath . '/parts/';
 PartRuntime::buildStyleIndexSheet();
 
 
-
 function Part ($pathOrCallback = null, $props = [], $children = '', $config = [], $meta = []) {
   if ($pathOrCallback) {
     if ( is_callable($pathOrCallback) ) {
@@ -300,6 +319,7 @@ function P(...$args) {
   return Part(...$args);
 }
 
+/* Pretty part errors */
 function printPartError($error, $partName, $props) {
   $id = uniqid('err-');
   ob_clean();
@@ -484,6 +504,10 @@ function partMeta () {
 
 function slot () {
   return PartRuntime::getCurrentChildren();
+}
+
+function props () {
+  return PartRuntime::getCurrentID();
 }
 
 function setContext ($context) {
