@@ -650,8 +650,8 @@
       Expected the same arguments as "acf_register_block_type", however with a "part" attribute, which must be a string
     */
     public function addBlock ($def) {
-      if (!$def['render_callback']) {
-        if (!$def['part']) {
+      if (@!$def['render_callback']) {
+        if (@!$def['part']) {
           throw new Exception("No 'part' attribute was found when registering a block.");
         }
         $def['render_callback'] = function(...$args) use ($def) {

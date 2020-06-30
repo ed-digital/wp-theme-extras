@@ -37,7 +37,7 @@ if (!class_exists('paths')) {
       return implode('/', $relPath);
     }
   
-    function has_extension ($path, $ext) {
+    public static function has_extension ($path, $ext) {
       return strpos($path, $ext) !== false;
     }
   
