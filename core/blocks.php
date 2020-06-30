@@ -28,13 +28,13 @@
     $allowedBlocks = ED()->blockWhitelist;
 
     foreach ($blockTypes as $name => $def) {
-      if (is_callable($def['test'])) {
+      if (is_callable(@$def['test'])) {
         if (!$def['test']($post, $templateName)) {
           continue;
         }
       } else {
         if ($post->post_type === 'page') {
-          if (is_array($def['templates']) && !in_array($templateName, $def['templates'])) {
+          if (@is_array($def['templates']) && @!in_array($templateName, $def['templates'])) {
             // Don't allow this block, since the current template is not on the whitelist
             continue;
           }

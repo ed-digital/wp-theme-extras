@@ -43,13 +43,15 @@ var PageTemplateSwitcher = /** @class */ (function () {
             var retrievedContent = sessionStorage.getItem(globalId);
             /* Retrieve template layout from the server */
             if (this.template !== DEFAULT) {
-                var theTemplate = TEMPLATES[this.template].template;
-                if (theTemplate) {
-                    var theBlocks = retrievedContent ? parse(retrievedContent) : blocks;
-                    var shapedBlocks = synchronizeBlocksWithTemplate(theBlocks, theTemplate);
-                    resetBlocks(shapedBlocks);
-                    updatePost({ content: serialize(shapedBlocks) });
-                    return;
+                if (this.template in TEMPLATES) {
+                    var theTemplate = TEMPLATES[this.template].template;
+                    if (theTemplate) {
+                        var theBlocks = retrievedContent ? parse(retrievedContent) : blocks;
+                        var shapedBlocks = synchronizeBlocksWithTemplate(theBlocks, theTemplate);
+                        resetBlocks(shapedBlocks);
+                        updatePost({ content: serialize(shapedBlocks) });
+                        return;
+                    }
                 }
             }
             else {

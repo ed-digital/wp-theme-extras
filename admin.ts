@@ -63,13 +63,15 @@ class PageTemplateSwitcher {
 
       /* Retrieve template layout from the server */
       if (this.template !== DEFAULT) {
-        const theTemplate = TEMPLATES[this.template].template
-        if (theTemplate) {
-          const theBlocks = retrievedContent ? parse(retrievedContent) : blocks
-          const shapedBlocks = synchronizeBlocksWithTemplate(theBlocks, theTemplate)
-          resetBlocks(shapedBlocks)
-          updatePost({ content: serialize(shapedBlocks) })
-          return
+        if (this.template in TEMPLATES) {
+          const theTemplate = TEMPLATES[this.template].template
+          if (theTemplate) {
+            const theBlocks = retrievedContent ? parse(retrievedContent) : blocks
+            const shapedBlocks = synchronizeBlocksWithTemplate(theBlocks, theTemplate)
+            resetBlocks(shapedBlocks)
+            updatePost({ content: serialize(shapedBlocks) })
+            return
+          }
         }
       } else {
         /*
