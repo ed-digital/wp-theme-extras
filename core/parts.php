@@ -133,12 +133,12 @@ class PartRuntime {
   }
 
   // Complete a part
-  public function end () {
+  public static function end () {
     array_pop(self::$state->stack);
     self::$state->depth -= 1;
   }
 
-  static function run($fileOrFunction, $props = [], $children = '', $config = [], $meta = []) {
+  public static function run($fileOrFunction, $props = [], $children = '', $config = [], $meta = []) {
     $name = get($meta, 'name');
 
     PartRuntime::setup();
@@ -188,7 +188,7 @@ class PartRuntime {
     return $output;
   }
 
-  static function include($file, $args) {
+  public static function include($file, $args) {
     global $post;
     $arg = createGetter($args);
     include($file);

@@ -47,7 +47,7 @@ if (!function_exists('get')) {
   
       if (is_array($target) && isset($target[$key])) {
         $target = $target[$key];
-      } else if (is_object($target) && $target->{$key}) {
+      } else if (is_object($target) && @$target->{$key}) {
         $target = $target->{$key};
       } else {
         $target = null;
