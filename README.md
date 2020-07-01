@@ -58,15 +58,25 @@ ED()->addTemplate("my-template", [
 Add acf gutenberg blocks
 
 ```php
-ED()->addTemplate(
-  $name: string,
-  $labelOrConfig: string | [
-    "label" => string,
-    "supports" => string[],
-    "gutenberg" => boolean
-    "part" => Part()->Template->Test
-  ]
-);
+ED()->addBlock([
+  /*
+  Path formatted part reference
+  eg Part()->Blocks->Test() === "blocks/test"
+  */
+  'part' => string,
+  /* block id */
+  'name' => string,
+  /* UI title */
+  'title' => string,
+  /* UI description */
+  'description' => string,
+  /* UI category */
+  'category' => string,
+  /* UI icon */
+  'icon' => string,
+  /* UI search keywords */
+  'keywords' => string[],
+]);
 ```
 
 #### **Examples**
