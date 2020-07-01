@@ -58,6 +58,20 @@ ED()->addTemplate("my-template", [
 Add acf gutenberg blocks
 
 ```php
+ED()->addTemplate(
+  $name: string,
+  $labelOrConfig: string | [
+    "label" => string,
+    "supports" => string[],
+    "gutenberg" => boolean
+    "part" => Part()->Template->Test
+  ]
+);
+```
+
+#### **Examples**
+
+```php
 ED()->addBlock([
   'part' => 'blocks/image-content', // Renders Part()->Blocks->ImageContent()
   'name' => "image",
