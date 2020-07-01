@@ -47,6 +47,24 @@ ED()->addTemplate("my-template", [
 
 ### **addFunctionRoute**
 
-```phpo
+```php
 
+```
+
+---
+
+### **addBlock**
+
+Add acf gutenberg blocks
+
+```php
+ED()->addBlock([
+  'part' => 'blocks/image-content', // Renders Part()->Blocks->ImageContent()
+  'name' => "image",
+  'title' => "My Image",
+  'description' => "My image block",
+  'category' => "commmon",
+  'icon' => 'dashicon',
+  'keywords' => ['testimonial', 'quote'],
+])
 ```
