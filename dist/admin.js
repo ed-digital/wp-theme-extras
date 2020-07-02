@@ -1,7 +1,6 @@
 var _a = window.wp.blocks, parse = _a.parse, synchronizeBlocksWithTemplate = _a.synchronizeBlocksWithTemplate, serialize = _a.serialize;
 var _b = window.wp.data, select = _b.select, subscribe = _b.subscribe, dispatch = _b.dispatch;
 var DEFAULT = "wp_default_template";
-console.log("installed");
 var PageTemplateSwitcher = /** @class */ (function () {
     function PageTemplateSwitcher() {
         this.template = DEFAULT;
@@ -26,7 +25,6 @@ var PageTemplateSwitcher = /** @class */ (function () {
         var postType = editor.getEditedPostAttribute("type");
         var id = editor.getEditedPostAttribute("id");
         var blocks = editor.getBlocks();
-        console.log(TEMPLATES);
         if (postType && id) {
             /* ID for PREVIOUS content.  */
             var previousId = postType + ":" + id + ":" + this.previousTemplate;

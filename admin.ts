@@ -15,8 +15,6 @@ const { select, subscribe, dispatch } = window.wp.data
 
 const DEFAULT = "wp_default_template"
 
-console.log("installed")
-
 class PageTemplateSwitcher {
   template: string = DEFAULT
   previousTemplate: string = DEFAULT
@@ -41,8 +39,6 @@ class PageTemplateSwitcher {
     const postType = editor.getEditedPostAttribute("type")
     const id = editor.getEditedPostAttribute("id")
     const blocks = editor.getBlocks()
-
-    console.log(TEMPLATES)
 
     if (postType && id) {
       /* ID for PREVIOUS content.  */

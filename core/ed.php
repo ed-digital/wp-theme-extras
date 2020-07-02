@@ -193,7 +193,11 @@
       );
 
       add_action('admin_enqueue_scripts', function() {
-        wp_enqueue_script('theme-admin', ED()->themeURL."/vendor/ed-digital/wp-theme-extras/dist/admin.js", ['wp-blocks', 'wp-editor', 'wp-edit-post', 'wp-dom-ready']);
+        if( function_exists( 'is_gutenberg_page' ) && is_gutenberg_page() ) {
+          wp_enqueue_script('theme-admin', ED()->themeURL."/vendor/ed-digital/wp-theme-extras/dist/admin.js", [ 'wp-blocks', 'wp-editor', 'wp-edit-post', 'wp-dom-ready']);
+        } else {
+          
+        }
       });
 
       /* Enable the template['supports'] array */
