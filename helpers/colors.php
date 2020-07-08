@@ -60,6 +60,7 @@ if (!class_exists('Color')) {
         case "hex": {
           $hex = str_replace('#', '', $color);
           $length = strlen($hex);
+          dump($length, $hex);
       
           $r = hexdec($length == 6 ? substr($hex, 0, 2) : ($length == 3 ? str_repeat(substr($hex, 0, 1), 2) : 0));
           $g = hexdec($length == 6 ? substr($hex, 2, 2) : ($length == 3 ? str_repeat(substr($hex, 1, 1), 2) : 0));
@@ -122,7 +123,7 @@ if (!class_exists('Color')) {
     }
 
     function hex () {
-      return '#' . str_pad(dechex($this->r), 2, '0') . str_pad(dechex($this->g), 2, '0') . str_pad(dechex($this->b), 2, '0');
+      return sprintf("#%02x%02x%02x", $this->r, $this->g, $this->b);
     }
 
     function rgb () {
