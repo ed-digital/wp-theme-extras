@@ -60,7 +60,6 @@ if (!class_exists('Color')) {
         case "hex": {
           $hex = str_replace('#', '', $color);
           $length = strlen($hex);
-          dump($length, $hex);
       
           $r = hexdec($length == 6 ? substr($hex, 0, 2) : ($length == 3 ? str_repeat(substr($hex, 0, 1), 2) : 0));
           $g = hexdec($length == 6 ? substr($hex, 2, 2) : ($length == 3 ? str_repeat(substr($hex, 1, 1), 2) : 0));
