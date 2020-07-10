@@ -198,6 +198,12 @@ if (!class_exists('fetch')) {
       } elseif($method === 'post' && get($this->options, 'body') && $isFormEncoded) {
         $this->url->query->set(get($this->options, 'body'));
       }
+      
+      foreach (['scheme', 'host', 'port', 'user', 'pass', 'path'] as $prop) {
+        if (isset($this->options[$prop])) {
+          $this->url->set($prop, $this->options[$prop]);
+        }
+      }
 
       $config[CURLOPT_URL] = $this->url->toString();
       /* converts option[keys] to curl[keys] */
@@ -251,7 +257,11 @@ if (!class_exists('fetch')) {
     }
 
     function setUrl ($url) {
-      $this->url = new FetchURL($url);
+      if ($url instanceof FetchURL) {
+        $this->url = $url;
+      } elseif($url) {
+        $this->url = new FetchURL($url);
+      }
     }
   
     function get ($url, $options = []) {
