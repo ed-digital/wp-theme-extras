@@ -46,7 +46,7 @@ fetch()->post(
 
 ### Making multiple requests in parallel
 
-Fetch comes with a utility for writing parallel requests called `Fetch::multi`. multi captures all fetch calls inside it's callbacks and sends them once the function has ended. It returns all the fetch objects in an array
+Fetch comes with a utility for writing parallel requests called `Fetch::multi`. multi captures all fetch calls inside it's callback and sends them once the function has ended. It returns all the fetch objects in an array
 
 ```php
 $requests = Fetch::multi(function () {
