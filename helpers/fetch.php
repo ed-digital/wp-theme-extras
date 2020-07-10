@@ -70,7 +70,7 @@ if (!class_exists('fetch')) {
       }
     }
   }
-  
+
   class FetchUrl {
     function __construct ($url) {
       $parts = parse_url($url);
@@ -188,6 +188,10 @@ if (!class_exists('fetch')) {
       ]);
 
       $config = [];
+
+      if (!$this->url) {
+        $this->url = new FetchURL($this->options['url']);
+      }
 
       if ($method === 'get' && get($this->options, 'query')) {
         $this->url->query->set(get($this->options, 'query'));
