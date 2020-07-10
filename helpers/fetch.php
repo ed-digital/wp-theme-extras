@@ -41,7 +41,7 @@ if (!class_exists('fetch')) {
       return $result;
     }
 
-    function set($prop, $value) {
+    function set($prop, $value = null) {
       if (!isset($value)) {
         if (is_array($prop)) {
           $this->params = $prop;
@@ -83,6 +83,16 @@ if (!class_exists('fetch')) {
       $this->path = get($parts, 'path');
       $this->fragment = get($parts, 'fragment');
       $this->query = new FetchQuery(get($parts, 'query'));
+    }
+
+    function set ($prop, $value = null) {
+      if (is_array($prop)) {
+        foreach ($prop as $k => $v) {
+          $this->set($k, $v);
+        }
+      } else {
+        $this->$prop = $value;
+      }
     }
 
     function toString () {
@@ -176,7 +186,6 @@ if (!class_exists('fetch')) {
       if ($this->ch) return $this;
 
       $this->ch = curl_init();
-      $method = $this->method();
       $encoding = get($this->options, 'headers.Content-Type', null);
       $isFormEncoded = $encoding === "application/x-www-form-urlencoded";
 
@@ -189,9 +198,13 @@ if (!class_exists('fetch')) {
 
       $config = [];
 
-      if (!$this->url) {
-        $this->url = new FetchURL($this->options['url']);
+      if (isset($this->options['url'])) {
+        $this->url = new FetchUrl($this->options['url']);
       }
+
+      $method = $this->method();
+      dump($method);
+      exit;
 
       if ($method === 'get' && get($this->options, 'query')) {
         $this->url->query->set(get($this->options, 'query'));
@@ -253,7 +266,7 @@ if (!class_exists('fetch')) {
     }
 
     function method () {
-      return strtolower($this->options->method);
+      return strtolower($this->options['method']);
     }
 
     function setUrl ($url) {
@@ -264,7 +277,7 @@ if (!class_exists('fetch')) {
       }
     }
   
-    function get ($url, $options = []) {
+    function get ($url = null, $options = []) {
       $this->options['method'] = "GET";
       $this->setUrl($url);
       $this->merge($options);
@@ -274,7 +287,7 @@ if (!class_exists('fetch')) {
       return $this;
     }
   
-    function post ($url, $body = null, $opts = []) {
+    function post ($url = null, $body = null, $opts = []) {
       $this->options['method'] = "POST";
       $this->setUrl($url);
       $this->options['body'] = $body;
