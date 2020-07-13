@@ -58,6 +58,37 @@ if (!function_exists('get')) {
     return $target === null ? $default : $target;
   }
 
+  if (!function_exists('set')) {
+    function set ($obj, $key, $value) {
+      $target = &$obj;
+      $original = &$target;
+      
+      $parts = is_array($key) ? $key : explode('.', $key);
+      $length = count($parts);
+      
+      for ($i = 0; $i < $length - 1; $i++) {
+        $key = $parts[$i];
+        $current = get($target, $key);
+        if (!$current || !is_array($current) || !is_object($current)) {
+          if (is_object($target)) {
+            $target->$key = (object)[];
+            $target = $target->$key;
+          } else {
+            $target[$key] = [];
+            $target = &$target[$key];
+          }
+        }
+      }
+      if (is_object($target)) {
+        $target->{$parts[$i]} = $value;
+      } else {
+        $target[$parts[$i]] = $value;
+      }
+
+      return $original;
+    }
+  }
+
   /* 
   Returns a get function with the first method bound to a specific object 
   */

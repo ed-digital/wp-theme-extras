@@ -3,8 +3,13 @@
 **Core API**
 
 - [`ED()->addTemplate()`](./docs/core/add-template.md)
+- [`ED()->addRoute()`](./docs/core/add-route.md);
 - [`ED()->addFunctionRoute()`](./core/add-function-route.md)
 - [`ED()->addBlock()`](./docs/core/add-block.md)
+
+**Rest API**
+
+- [`ED()->API->addMethod()`](./docs/core/api/add-method.md)
 
 **Parts**
 

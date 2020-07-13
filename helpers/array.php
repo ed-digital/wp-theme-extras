@@ -69,6 +69,11 @@ if (!class_exists('Arr')) {
       );
     }
 
+    public static function isAssoc ($arr) {
+      if (array() === $arr) return false;
+      return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+
     public static function list($arr, $glue = ", ", $final = "and ") {
       $result = '';
       $len = count($arr);

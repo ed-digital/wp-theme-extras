@@ -186,7 +186,14 @@ if (!class_exists('fetch')) {
       if ($this->ch) return $this;
 
       $this->ch = curl_init();
+
+      $method = $this->method();
       $encoding = get($this->options, 'headers.Content-Type', null);
+      if ($method === 'post' && !$encoding) {
+        $encoding = 'Content-Type: text/plain';
+        set($this->options, 'headers.Content-Type', $encoding);
+      }
+
       $isFormEncoded = $encoding === "application/x-www-form-urlencoded";
 
 
@@ -199,12 +206,9 @@ if (!class_exists('fetch')) {
       $config = [];
 
       if (isset($this->options['url'])) {
-        $this->url = new FetchUrl($this->options['url']);
+        $this->url = new FetchUrl(/* "localhost:8000" */ $this->options['url']);
       }
 
-      $method = $this->method();
-      dump($method);
-      exit;
 
       if ($method === 'get' && get($this->options, 'query')) {
         $this->url->query->set(get($this->options, 'query'));
@@ -243,8 +247,16 @@ if (!class_exists('fetch')) {
           $config[CURLOPT_FOLLOWLOCATION] = $value;
         } elseif ($option === 'return_result') {
           $config[CURLOPT_RETURNTRANSFER] = $value;
-        } elseif ($option === 'headers') {
-          $config[CURLOPT_HTTPHEADER] = $value;
+        } elseif ($option === 'headers' && $value) {
+          $headers = [];
+          foreach ($value as $k => $v) {
+            if (is_numeric($k)) {
+              $headers[] = $v;
+            } else {
+              $headers[] = "$k: $v";
+            }
+          }
+          $config[CURLOPT_HTTPHEADER] = $headers;
         } elseif ($option === 'body') {  
           if ($method === 'post' && !$isFormEncoded) {
             if ($value) {
@@ -310,6 +322,8 @@ if (!class_exists('fetch')) {
       $result = curl_exec($this->ch);
       $this->setResponse($result);
       $this->close();
+
+      return $this;
     }
 
     function setResponse ($result) {
