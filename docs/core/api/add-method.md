@@ -18,3 +18,25 @@ ED()->API->addMethod(
   $callback: function
 );
 ```
+
+---
+
+#### Example
+
+```php
+// php
+ED()->API->addMethod(
+  'test/method',
+  function () {
+    return [
+      'worked' => true
+    ];
+  }
+);
+```
+
+```js
+// js
+let result = await Site.callApi("test/method")
+/* result === { worked: true } */
+```
