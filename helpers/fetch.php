@@ -19,7 +19,9 @@ return $request->response;
 if (!class_exists('fetch')) {
 
   class FetchQuery {
-    function __construct ($param) {
+    function __construct ($param, $parseString = null, $toString = null) {
+      $this->parseString = $parseString;
+      $this->toString = $toString;
       if (is_string($param)) {
         $this->params = $this->parseString($param);
       } elseif (is_object($param)) {
@@ -32,11 +34,14 @@ if (!class_exists('fetch')) {
     }
 
     function parseString($param) {
+      if (is_callable($this->parseString)) {
+        return $this->parseString($this);
+      }
       $result = [];
       $parts = explode('&', $param);
       foreach ($parts as $k => $p) {
         $group = explode('=', $p);
-        $result[$group[0]] = JSON::parse($group[1]) ?? $group[1];
+        $result[$group[0]] = JSON::parse(urldecode($group[1])) ?? urldecode($group[1]);
       }
       return $result;
     }
@@ -59,12 +64,11 @@ if (!class_exists('fetch')) {
     }
 
     function toString () {
-      $parts = [];
-      foreach($this->params as $k => $v) {
-        $parts[] = "$k=$v";
+      if (is_callable($this->toString)) {
+        return $this->toString($this);
       }
-      if (count($parts)) {
-        return "?" . implode("&", $parts);
+      if (count($this->params)) {
+        return "?" . http_build_query($this->params);
       } else {
         return "";
       }
@@ -132,9 +136,20 @@ if (!class_exists('fetch')) {
         curl_multi_add_handle($controller, $req->ch);
       }
 
+      $active = null;
+      //execute the handles
       do {
-        curl_multi_exec($controller, $running);
-      } while ($running > 0);
+        $mrc = curl_multi_exec($mh, $active);
+      }
+      while ($mrc == CURLM_CALL_MULTI_PERFORM);
+
+      while ($active && $mrc == CURLM_OK) {
+          if (curl_multi_select($mh) != -1) {
+            do {
+                $mrc = curl_multi_exec($mh, $active);
+            } while ($mrc == CURLM_CALL_MULTI_PERFORM);
+          }
+      }
 
       foreach ($this->requests as $req) {
         $req->setResponse(
@@ -171,6 +186,7 @@ if (!class_exists('fetch')) {
         $this->options,
         $opts
       );
+      return $this;
     }
 
     static function multi ($callback) {
@@ -200,7 +216,7 @@ if (!class_exists('fetch')) {
       $this->merge([
         'return_result' => true,
         'follow_location' => true,
-        'throw_on_error' => true
+        // 'throw_on_error' => true
       ]);
 
       $config = [];
@@ -214,6 +230,17 @@ if (!class_exists('fetch')) {
         $this->url->query->set(get($this->options, 'query'));
       } elseif($method === 'post' && get($this->options, 'body') && $isFormEncoded) {
         $this->url->query->set(get($this->options, 'body'));
+      } elseif ($method === 'post' && get($this->options, 'body')) {
+        $body = get($this->options, 'body');
+        if ($body) {
+          $value = json_encode($body);
+          $config[CURLOPT_POSTFIELDS] = $value;
+          if (!isset($this->options['headers'])) {
+            $this->options['headers'] = [];
+          }
+          $this->options['headers']['Content-Length'] = strlen($value);
+          $this->options['headers']['Content-Type'] = 'application/json';
+        }
       }
       
       foreach (['scheme', 'host', 'port', 'user', 'pass', 'path'] as $prop) {
@@ -257,12 +284,6 @@ if (!class_exists('fetch')) {
             }
           }
           $config[CURLOPT_HTTPHEADER] = $headers;
-        } elseif ($option === 'body') {  
-          if ($method === 'post' && !$isFormEncoded) {
-            if ($value) {
-              $config[CURLOPT_POSTFIELDS] = json_encode($value);
-            }
-          }
         } elseif ($option === 'verify_ssl_security') {
           $config[CURLOPT_SSL_VERIFYPEER] = false;
           $config[CURLOPT_SSL_VERIFYHOST] = false;
