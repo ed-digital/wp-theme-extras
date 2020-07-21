@@ -13,12 +13,12 @@ if (!class_exists('Color')) {
     } else if (strpos($color, 'rgb') === 0) {
       return 'rgb';
     } else if (strpos($color, 'hsl') === 0) {
-      return 'hls';
+      return 'hsl';
     }
   }
 
   function color_percent_to_decimal ($percent) {
-    if (strpos($percent, '%') !== 'false') {
+    if (strpos($percent, '%') !== false) {
       return @(substr($percent, 0, -1) / 100);
     } else {
       return $percent;
@@ -49,7 +49,7 @@ if (!class_exists('Color')) {
         }
         case "rgb": {
           $parts = Arr::map(
-            explode(", ", preg_replace("/^rgba?\\\(\\\)$/", "", $color)),
+            explode(", ", preg_replace("/^rgba?\\(|\\)$/", "", $color)),
             function ($item) {
               return @(+(trim($item)));
             }
@@ -67,9 +67,9 @@ if (!class_exists('Color')) {
 
           return [$r, $g, $b, 1];
         }
-        case "hls": {
+        case "hsl": {
           $parts = Arr::map(
-            explode(", ", preg_replace("/^hsl\\\(.*?\\\)$/", "", $color)),
+            explode(", ", preg_replace("/^hsla?\\(|\\)$/", "", $color)),
             function ($item) {
               return color_percent_to_decimal(trim($item));
             }
@@ -77,6 +77,7 @@ if (!class_exists('Color')) {
           $h = $parts[0];
           $s = $parts[1];
           $l = $parts[2];
+          $a = get($parts, 3, 1);
 
           $r; 
           $g; 
@@ -116,7 +117,7 @@ if (!class_exists('Color')) {
           $g = ( $g + $m ) * 255;
           $b = ( $b + $m ) * 255;
         
-          return [floor($r), floor($g), floor($b), 1];
+          return [floor($r), floor($g), floor($b), $a];
         }
       }
     }
@@ -129,10 +130,42 @@ if (!class_exists('Color')) {
       return "rgba({$this->r}, {$this->g}, {$this->b})";
     }
 
-    function hls () {
-      $oldR = $r;
-      $oldG = $g;
-      $oldB = $b;
+    function __get ($property) {
+      if ($property === "h" || $property === 's' || $property === 'l') {
+        $index = strpos('hsl', $property);
+        return $this->hslArray()[$index];
+      } else {
+        return $this->$property;
+      }
+    }
+
+    function __set ($property, $value) {
+      if ($property === "h" || $property === 's' || $property === 'l') {
+        $arr = $this->hslArray();
+        $index = strpos("hsl", $property);
+        $arr[$index] = $value;
+        $h = $arr[0];
+        $s = max(0, min(1, $arr[1]));
+        $l = max(0, min(1, $arr[2]));
+        $a = $this->a;
+        $rgbaArray = Color::convert_to_rgba_array("hsla($h, " . $s * 100 . "%, " . $l * 100 . "%, $a)");
+        $this->r = $rgbaArray[0];
+        $this->g = $rgbaArray[1];
+        $this->b = $rgbaArray[2];
+        $this->a = $rgbaArray[3];
+      } else {
+        $this->$property = $value;
+      }
+    }
+
+    function hslArray() {
+      $oldR = $this->r;
+      $oldG = $this->g;
+      $oldB = $this->b;
+
+      $r = $oldR;
+      $g = $oldG;
+      $b = $oldB;
 
       $r /= 255;
       $g /= 255;
@@ -145,6 +178,7 @@ if (!class_exists('Color')) {
       $s;
       $l = ( $max + $min ) / 2;
       $d = $max - $min;
+
 
       if( $d == 0 ){
         $h = $s = 0; // achromatic
@@ -166,7 +200,12 @@ if (!class_exists('Color')) {
         }	        
       }
 
-      return "hsl(".round( $h, 2 ).", ".round( $s, 2 ).", ".round( $l, 2 ).")";
+      return [$h, $s, $l];
+    }
+
+    function hsl () {
+      $arr = $this->hslArray();
+      return "hsl(".$arr[0] .", ". $arr[1] * 100 ."%, ". $arr[2] * 100 ."%)";
     }
   }
 } else {
