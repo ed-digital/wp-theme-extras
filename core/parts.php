@@ -180,6 +180,22 @@ class PartRuntime {
 
     /* HTML comments are shown during dev */
     if ($comment) echo "<!-- " . PartRuntime::currentDepth() . " </$name> -->";
+    if (is_admin()) {
+      $id = uniqid();
+      ?>
+      <script id='<?= $id ?>'>
+        ;(function () {
+          var script = document.getElementById("<?= $id ?>")
+          var container = script.previousElementSibling
+          if (window.Site) { 
+            Site.initWidgets();
+            Site.transitionWidgetsIn(Site.$(document.documentElement), null, null, function () {});
+          }
+          script.remove()
+        })()
+      </script>
+      <?php
+    }
     $output = ob_get_contents();
     ob_end_clean();
 

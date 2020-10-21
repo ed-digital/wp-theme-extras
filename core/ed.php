@@ -661,6 +661,9 @@
         $def['render_callback'] = function(...$args) use ($def) {
           $fields = get_fields();
           echo Part($def['part'], $fields);
+          if (is_admin()) {
+            echo "<script>Site.initWidgets()</script>";
+          }
         };
       }
 
