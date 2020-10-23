@@ -5,7 +5,7 @@ Adding some of the helpful functions node's path module to php
 if (!class_exists('paths')) {
   class Paths {
     /* Given two paths it will return the second path relative to the first */
-    public static function relative ($from, $to) {
+    public static function relative ($from, $to, $prefix = './') {
       // some compatibility fixes for Windows paths
       $from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
       $to   = is_dir($to)   ? rtrim($to, '\/') . '/'   : $to;
@@ -30,7 +30,7 @@ if (!class_exists('paths')) {
                   $relPath = array_pad($relPath, $padLength, '..');
                   break;
               } else {
-                  $relPath[0] = './' . $relPath[0];
+                  $relPath[0] = $prefix . $relPath[0];
               }
           }
       }

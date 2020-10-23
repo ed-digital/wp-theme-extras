@@ -1,4 +1,5 @@
 <?php
+use StoutLogic\AcfBuilder\FieldsBuilder;
 
   class ED {
 
@@ -27,7 +28,8 @@
       "includeSiteKit" => false,
       "disableAdminBar" => false,
       "autoloadIncludeJS" => false,
-      "useRelativeURLs" => false
+      "useRelativeURLs" => false,
+      "blockLoading" => false
     ];
 
     protected function __construct() { }
@@ -117,6 +119,53 @@
         flush_rewrite_rules();
         update_option("routes_hash", $hash, true);
       }
+
+      if ($this->config['blockLoading']) {
+        $blocks = $this->getFiles(
+          $this->themePath . "/parts/blocks",
+          true
+        );
+
+        foreach ($blocks as $block) {
+          $result;
+          /* Sandbox the block */
+          $fn = function () use ($block) {
+            ob_start();
+            $config = include($block);
+            ob_get_clean();
+            return $config;
+          };
+
+          $config = $fn();
+
+          if (is_array($config)) {
+            $config['part'] = str_replace(
+              ".php",
+              "",
+              Paths::relative(
+                ED()->themePath . '/parts',
+                $block,
+                ''
+              )
+            );
+            $fields = get($config, 'fields');
+            if ($fields) {
+              unset($config['fields']);
+            }
+            $registeredBlock = $this->addBlock($config);
+            if ($fields && is_callable($fields)) {
+              $builder = new FieldsBuilder('block_' . $config['name']);
+              $fields($builder);
+              $builder->setLocation('block', '==', $registeredBlock['name']);
+              acf_add_local_field_group($builder->build());
+            }
+          }
+        }
+      }
+    }
+
+    public function enableBlockLoading ($enable = true) {
+      $this->config['blockLoading'] = $enable;
     }
 
     /* 
@@ -661,6 +710,27 @@
         $def['render_callback'] = function(...$args) use ($def) {
           $fields = get_fields();
           echo Part($def['part'], $fields);
+          if (is_admin()) {
+            $id = uniqid()
+            ?>
+            <script id="<?= $id ?>">
+            if (window.Site) {
+              Site = window.Site
+              var element = document.getElementById("<?= $id ?>")
+
+              /* Re init a widget every time the values in acf change */
+              Site.initWidgets(
+                element.previousElementSibling
+              )
+              Site.getAllWidgets(element.parent).forEach(widget => {
+                if (typeof widget._transitionIn === 'function') {
+                  widget._transitionIn()
+                }
+              })
+            }
+            </script>
+            <?
+          }
         };
       }
 
