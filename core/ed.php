@@ -29,7 +29,7 @@ use StoutLogic\AcfBuilder\FieldsBuilder;
       "disableAdminBar" => false,
       "autoloadIncludeJS" => false,
       "useRelativeURLs" => false,
-      "loadBlocks" => false
+      "loadBlocks" => true
     ];
 
     protected function __construct() { }
@@ -126,19 +126,20 @@ use StoutLogic\AcfBuilder\FieldsBuilder;
           $this->themePath . "/parts/blocks",
           true
         );
-
+        
         foreach ($blocks as $block) {
           $result;
           /* Sandbox the block */
           $fn = function () use ($block) {
             ob_start();
-            $config = include($block);
+            try {
+              $config = include($block);
+            } catch (Exception $e) {} catch (Error $e) {}
             ob_get_clean();
             return $config;
           };
 
           $config = $fn();
-
           if (is_array($config)) {
             $config['part'] = str_replace(
               ".php",
@@ -738,7 +739,8 @@ use StoutLogic\AcfBuilder\FieldsBuilder;
 
       /* When the theme is installed the site may not have acf installed */
       if (function_exists('acf_register_block_type')) {
-        return acf_register_block_type($def);
+        $block = acf_register_block_type($def);
+        return $block;
       } else {
         return $def;
       }
