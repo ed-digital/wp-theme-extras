@@ -29,7 +29,7 @@ use StoutLogic\AcfBuilder\FieldsBuilder;
       "disableAdminBar" => false,
       "autoloadIncludeJS" => false,
       "useRelativeURLs" => false,
-      "blockLoading" => false
+      "loadBlocks" => false
     ];
 
     protected function __construct() { }
@@ -120,7 +120,8 @@ use StoutLogic\AcfBuilder\FieldsBuilder;
         update_option("routes_hash", $hash, true);
       }
 
-      if ($this->config['blockLoading']) {
+      
+      if ($this->config['loadBlocks']) {
         $blocks = $this->getFiles(
           $this->themePath . "/parts/blocks",
           true
@@ -165,7 +166,7 @@ use StoutLogic\AcfBuilder\FieldsBuilder;
     }
 
     public function enableBlockLoading ($enable = true) {
-      $this->config['blockLoading'] = $enable;
+      $this->config['loadBlocks'] = $enable;
     }
 
     /* 
