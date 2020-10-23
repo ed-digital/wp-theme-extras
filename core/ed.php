@@ -711,7 +711,7 @@ use StoutLogic\AcfBuilder\FieldsBuilder;
           $fields = get_fields();
           echo Part($def['part'], $fields);
           if (is_admin()) {
-            $id = uniqid()
+            $id = uniqid();
             ?>
             <script id="<?= $id ?>">
             if (window.Site) {
@@ -727,6 +727,7 @@ use StoutLogic\AcfBuilder\FieldsBuilder;
                   widget._transitionIn()
                 }
               })
+              element.remove()
             }
             </script>
             <?
