@@ -9,6 +9,7 @@ if (!class_exists('Arr')) {
   class Arr {
 
     public static function map ($arr, $fn) {
+      if (!is_array($arr)) return [];
       $res = [];
       foreach ($arr as $k => $item) {
         $res[$k] = $fn($item, $k, $arr);

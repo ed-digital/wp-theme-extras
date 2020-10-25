@@ -40,8 +40,8 @@ class PartRuntime {
   }
 
   static function getContext($key) {
-    for ($i = count(self::$stack) - 1; $i >= 0; $i--) {
-      $fiber = self::$stack[$i];
+    for ($i = count(self::$state->stack) - 1; $i >= 0; $i--) {
+      $fiber = self::$state->stack[$i];
       $context = $fiber->context;
       $val = get($context, $key);
       if ($val !== null) {
@@ -564,8 +564,8 @@ function prop ($key = null, $default = null) {
   return get($stack->props, $key, $default);
 }
 
-function setContext ($key, $context) {
-  return PartRuntime::setContext($key);
+function setContext ($context) {
+  return PartRuntime::setContext($context);
 }
 
 function getContext ($key) {
