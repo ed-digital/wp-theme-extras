@@ -568,6 +568,6 @@ function setContext ($context) {
   return PartRuntime::setContext($context);
 }
 
-function getContext ($key) {
+function getContext ($key = '') {
   return PartRuntime::getContext($key);
 }

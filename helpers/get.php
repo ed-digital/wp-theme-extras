@@ -37,7 +37,7 @@ if (!function_exists('get')) {
     }
   
     $paths = explode('.', $index);
-    $length = count($paths);
+    $length = @count($paths);
   
   
     while ($length) {
@@ -64,7 +64,7 @@ if (!function_exists('get')) {
       $original = &$target;
       
       $parts = is_array($key) ? $key : explode('.', $key);
-      $length = count($parts);
+      $length = @count($parts);
       
       for ($i = 0; $i < $length - 1; $i++) {
         $key = $parts[$i];

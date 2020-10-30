@@ -75,7 +75,7 @@ if (!class_exists('Arr')) {
       return array_keys($arr) !== range(0, count($arr) - 1);
     }
 
-    public static function list($arr, $glue = ", ", $final = "and ") {
+    public static function list($arr, $glue = ", ", $final = " and ") {
       $result = '';
       $len = count($arr);
       foreach ($arr as $k => $item) {
