@@ -70,10 +70,23 @@ if (!class_exists('Arr')) {
       );
     }
 
+    public static function split ($arr, $fn) {
+      $results = [[], []];
+
+      foreach ($arr as $k => $item) {
+        if ($fn($item, $k, $arr)) {
+          $results[1][] = $item;
+        } else {
+          $results[0][] = $item;
+        }
+      }
+      return $results;
+    }
+
     public static function isAssoc ($arr) {
       if (array() === $arr) return false;
       return array_keys($arr) !== range(0, count($arr) - 1);
-    }
+    } 
 
     public static function list($arr, $glue = ", ", $final = " and ") {
       $result = '';

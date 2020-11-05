@@ -111,6 +111,10 @@ class PartRuntime {
     return get(self::$state, "used.$name", 0);
   }
 
+  public static function id () {
+    return self::getCurrent()->id;
+  }
+
   // Setup a Part
   public static function start ($name, $props, $children) {
     self::$state->depth += 1;
@@ -127,6 +131,7 @@ class PartRuntime {
       'props' => $props,
       'children' => $children,
       'context' => [],
+      'part' => $name
     ];
 
     return $id;

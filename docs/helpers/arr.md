@@ -24,3 +24,24 @@ Arr::map(
 ) === [20, 16, 14]
 ?>
 ```
+
+### **`Arr::split`**
+
+```php
+Arr::split($array, $callback): [falsey[], truthy[]]
+```
+
+Filters through an array calling the callback with each item, if the callback returns true it is added to the second result array, if it's false it is added to the first result array
+
+#### Example
+
+```php
+<?
+Arr::split(
+  [10, 9, 8],
+  function ($item, $index, $arr) {
+    return !($item % 2);
+  }
+) === [[9], [10, 8]]
+?>
+```
