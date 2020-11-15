@@ -31,19 +31,30 @@ class PartRuntime {
   static $dir = null;
   
   static function getCurrent () {
+    if (self::currentDepth() === -1) return null;
     return self::$state->stack[self::currentDepth() - 1];
   }
 
   static function setContext($context) {
+    PartRuntime::setup();
     $stack = self::getCurrent();
-    $stack->context = array_merge($stack->context, $context);
+
+    if ($stack === null) {
+      self::$state->base_context = array_merge(self::$state->base_context, $context);
+    } else {
+      $stack->context = array_merge($stack->context, $context);
+    }
   }
 
   static function getContext($key) {
-    for ($i = count(self::$state->stack) - 1; $i >= 0; $i--) {
-      $fiber = self::$state->stack[$i];
-      $context = $fiber->context;
-      $val = get($context, $key);
+    for ($i = count(self::$state->stack) - 1; $i >= -1; $i--) {
+      if ($i === -1) {
+        $val = get(self::$state->base_context, $key);
+      } else {
+        $fiber = self::$state->stack[$i];
+        $context = $fiber->context;
+        $val = get($context, $key);
+      }
       if ($val !== null) {
         return $val;
       }
@@ -64,6 +75,7 @@ class PartRuntime {
       self::$state = (object)[
         'depth' => 0,
         'used' => (object)[],
+        'base_context' => [],
         'stack' => [],
       ];
     }

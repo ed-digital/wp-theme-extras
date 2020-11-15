@@ -7,6 +7,7 @@ require_once 'array.php';
 require_once 'colors.php';
 require_once 'css.php';
 require_once 'json.php';
+require_once 'create-block.php';
 
 /* Helpers that use helpers */
 require_once 'console.php';

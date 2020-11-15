@@ -27,6 +27,7 @@
     $blockTypes = acf_get_block_types();
     $allowedBlocks = ED()->blockWhitelist;
 
+
     foreach ($blockTypes as $name => $def) {
       if (is_callable(@$def['test'])) {
         if (!$def['test']($post, $templateName)) {
