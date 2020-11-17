@@ -83,6 +83,14 @@ if (!class_exists('Arr')) {
       return $results;
     }
 
+    public static function find($arr, $fn) {
+      foreach ($arr as $k => $v) {
+        if ($fn($v, $k, $arr)) {
+          return $v;
+        }
+      }
+    }
+
     public static function isAssoc ($arr) {
       if (array() === $arr) return false;
       return array_keys($arr) !== range(0, count($arr) - 1);
