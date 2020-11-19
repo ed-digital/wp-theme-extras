@@ -17,7 +17,9 @@ class Blocks {
     } catch (Exception $e) {
       console::error_log("exception including $block", $e);
     } catch (Error $e) {
-      console::error_log("error including $block", $e);
+      if ($e->getMessage() !== 'Controlled break') {
+        console::error_log("error including $block", $e);
+      }
     }
     ob_get_clean();
     $config = Blocks::$next_config;

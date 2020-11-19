@@ -40,6 +40,10 @@ if (!class_exists('image')) {
         return 'unknown';
       }
     }
+
+    public static function getImageSizes () {
+      return get_intermediate_image_sizes();
+    }
   
     public static function getSizesFromACF ($img) {
       $sizes = [];
@@ -55,7 +59,8 @@ if (!class_exists('image')) {
   
     /* Return wordpress image sizes as a srcset string */
     public static function getSrcset ($img, $size = 'natural') {
-      $sizes = self::getSizesFromACF($img);
+      $originalURL = get($img, 'url');
+      $sizes = self::getImageSizes($img);
       $baseAspect;
   
       if ($size === 'natural') {
@@ -70,11 +75,14 @@ if (!class_exists('image')) {
   
       foreach ($sizes as $size) {
         $currentAspect = get($img, "sizes.$size-width") / get($img, "sizes.$size-height");
+        $url = get($img, "sizes.$size");
         
-        if (!self::aspectsAreDifferent($baseAspect, $currentAspect)) {
-          $array[] = get($img, "sizes.$size") . ' ' . get($img, "sizes.$size-width") . 'w';
+        if (!self::aspectsAreDifferent($baseAspect, $currentAspect) && $url !== $originalURL) {
+          $array[] = $url . ' ' . get($img, "sizes.$size-width") . 'w';
         }
       }
+
+      $array[] = $originalURL . ' ' . get($img, "width") . 'w';
   
       $srcset = implode(',', $array);
     
