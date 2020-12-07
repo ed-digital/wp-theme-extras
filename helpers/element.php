@@ -25,17 +25,20 @@ Element::getAttribute is used to extract attributes from a domString
 
 if (!class_exists('Element')) {
 class Element {
-  public static function classes ($arr, $join = true) {
+  public static function classes (...$arrs) {
     $classes = [];
-    foreach ($arr as $k => $v) {
-      if (is_numeric($k)) {
-        $classes[] = $v;
-      } else if ($v) {
-        $classes[] = $k;
+    
+    foreach ($arrs as $arr) {
+      foreach ($arr as $k => $v) {
+        if (is_numeric($k)) {
+          $classes[] = $v;
+        } else if ($v) {
+          $classes[] = $k;
+        }
       }
     }
     
-    return $join ? implode(' ', $classes) : $classes;
+    return implode(' ', $classes);
   }
 
   public static function fixAspect ($width, $height) {
