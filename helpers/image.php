@@ -58,9 +58,11 @@ if (!class_exists('image')) {
     }
   
     /* Return wordpress image sizes as a srcset string */
-    public static function getSrcset ($img, $size = 'natural') {
+    public static function getSrcset ($img, $sizes = null, $size = 'natural') {
       $originalURL = get($img, 'url');
-      $sizes = self::getImageSizes($img);
+      if (!$sizes) {
+        $sizes = self::getImageSizes($img);
+      }
       $baseAspect;
   
       if ($size === 'natural') {
