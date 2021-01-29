@@ -109,18 +109,6 @@ class ED {
       add_filter('show_admin_bar', '__return_false');
     }
 
-    foreach($this->routes as $route) {
-      add_rewrite_rule($route[4], $route[5], $route[6]);
-    }
-
-    // If a hash of the routes doesn't match the one in the DB, flush the routes
-    $hash = md5(json_encode($this->routes));
-    if ($hash !== get_option("routes_hash")) {
-      flush_rewrite_rules();
-      update_option("routes_hash", $hash, true);
-    }
-
-    
     if ($this->config['loadBlocks']) {
       $blocks = $this->getFiles(
         $this->themePath . "/parts/blocks",
@@ -154,7 +142,23 @@ class ED {
           }
         }
       }
+
+      do_action("ed/blocks_loaded");
     }
+
+    foreach($this->routes as $route) {
+      add_rewrite_rule($route[4], $route[5], $route[6]);
+    }
+
+    // If a hash of the routes doesn't match the one in the DB, flush the routes
+    $hash = md5(json_encode($this->routes));
+    if ($hash !== get_option("routes_hash")) {
+      flush_rewrite_rules();
+      update_option("routes_hash", $hash, true);
+    }
+
+    
+    
   }
 
   public function enableBlockLoading ($enable = true) {

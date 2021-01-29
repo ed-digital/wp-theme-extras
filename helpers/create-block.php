@@ -15,10 +15,10 @@ class Blocks {
     try {
       include($file);
     } catch (Exception $e) {
-      console::error_log("exception including $block", $e);
+      /* Ignore errors when including blocks for registry time */
     } catch (Error $e) {
       if ($e->getMessage() !== 'Controlled break') {
-        console::error_log("error including $block", $e);
+        /* Ignore errors when including blocks for registry time */
       }
     }
     ob_get_clean();
