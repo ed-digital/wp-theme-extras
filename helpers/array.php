@@ -46,6 +46,15 @@ if (!class_exists('Arr')) {
       }
       return $last;
     }
+
+    public static function findIndex($arr, $fn) {
+      foreach ($arr as $k => $v) {
+        if ($fn($v, $k, $arr)) {
+          return $k;
+        }
+      }
+      return -1;
+    }
     
     public static function includes ($arr, $value) {
       return in_array($value, $arr);
