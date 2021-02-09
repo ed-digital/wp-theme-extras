@@ -6,6 +6,7 @@
 - [`ED()->addRoute()`](./docs/core/add-route.md);
 - [`ED()->addFunctionRoute()`](./core/add-function-route.md)
 - [`ED()->addBlock()`](./docs/core/add-block.md)
+- [`Blocks::create`](./docs/core/blocks-shortcut.md)
 
 **Rest API**
 

@@ -27,6 +27,13 @@ ED()->addBlock([
   'icon' => string,
   /* UI search keywords */
   'keywords' => string[],
+
+  /* Enabling blocks on certain pages */
+  'templates'? => string[]
+  'post_types'? => string[]
+  'test'? => function ($post: PostObject, $template: string): boolean {
+    /* return true if this block should be enabled for the $post or $template */
+  }
 ]);
 ```
 
