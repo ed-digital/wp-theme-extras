@@ -24,7 +24,8 @@ class ED {
   public $routes = [];
 
   public $config = [
-    "useBase" => true,
+    "headless" => false,
+    "useBase" => false,
     "includeSiteKit" => false,
     "disableAdminBar" => false,
     "autoloadIncludeJS" => false,
@@ -90,7 +91,6 @@ class ED {
       return $newList;
     });
 
-
     add_action('admin_head', array($this, "_hookListingColumns"));
     add_action('admin_notices', array($this, '_showPluginWarnings'));
 
@@ -101,6 +101,40 @@ class ED {
     if($this->config["useRelativeURLs"] == true) {
       // Load relative URL sub-plugin
       include_once(__dir__."/../lib/relative-url/relative-url.php");
+    }
+
+    if ($this->config["headless"] == true && function_exists("register_graphql_object_type")) {
+      add_action("graphql_register_types", function() {
+        register_graphql_scalar("ContentBlocks", [
+          "description" => "Gutenberg Block Content",
+          "serialize" => function($value) {
+            return $value;
+          },
+          "parseValue" => function($value) {
+            return $value;
+          },
+          "parseLiteral" => function($valueNode) {
+            return $valueName->value;
+          }
+        ]);
+
+        $postTypes = get_post_types([], 'objects');
+        foreach ($postTypes as $type) {
+          if ($type->show_in_rest && post_type_supports($type->name, "editor") && $type->name != "wp_block") {
+            // dump($type->name);
+            $typeName = graphql_format_type_name($type->name);
+            register_graphql_field($typeName, 'blocks', [
+              'type' => 'ContentBlocks',
+              'resolve' => function(\WPGraphQL\Model\Post $val, $args, $context, $info) {
+                $content = @parseAndProcessGutenbergContent(get_post($val->ID)->post_content);
+                return $content;
+              }
+            ]);
+          }
+        }
+        // die();
+      });
+
     }
   }
 
@@ -700,7 +734,7 @@ class ED {
     Expected the same arguments as "acf_register_block_type", however with a "part" attribute, which must be a string
   */
   public function addBlock ($def) {
-    if (@!$def['render_callback']) {
+    if (@!$def['render_callback'] && !$def['headless']) {
       if (@!$def['part']) {
         throw new Exception("No 'part' attribute was found when registering a block.");
       }
@@ -732,6 +766,13 @@ class ED {
       };
     }
 
+    if ($def['fields']) {
+      $builder = new FieldsBuilder('block_'.$def['name']);
+      $def['fields']($builder);
+      $builder->setLocation('block', '==', 'acf/'.$def['name']);
+      acf_add_local_field_group($builder->build());
+    }
+
     /* When the theme is installed the site may not have acf installed */
     if (function_exists('acf_register_block_type')) {
       $block = acf_register_block_type($def);
@@ -739,6 +780,11 @@ class ED {
     } else {
       return $def;
     }
+  }
+
+  public function addHeadlessBlock($def) {
+    $def['headless'] = true;
+    return $this->addBlock($def);
   }
 
   public function whitelistBlocks (...$blockNames) {
