@@ -27,7 +27,6 @@
     $blockTypes = acf_get_block_types();
     $allowedBlocks = ED()->blockWhitelist;
 
-
     foreach ($blockTypes as $name => $def) {
       if (is_callable(@$def['test'])) {
         if (!$def['test']($post, $templateName)) {
@@ -71,6 +70,20 @@
       if (@preg_match("/<figcaption>(.+)<\/figcaption>/", $block['innerHTML'], $match)) {
         $block['attrs']['caption'] = $match[1];
       }
+    } else if (preg_match("/^acf\//", $block['blockName'])) {
+      $blockID = "block_".rand(0, 100000);
+      $attrs = $block['attrs'];
+      $type = acf_get_block_type($block['blockName']);
+      acf_setup_meta($attrs['data'], $blockID, true);
+      unset($attrs['id']);
+      unset($attrs['name']);
+      unset($attrs['data']);
+      $data = get_fields();
+      if ($type && $type['process']) {
+        $data = $type['process']($data);
+      }
+      $block['attrs'] = @array_merge($attrs, $data);
+      acf_reset_meta($blockID);
     }
 
     $block['isTopLevel'] = count($parents) == 0;
