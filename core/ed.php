@@ -118,6 +118,13 @@ class ED {
           }
         ]);
 
+        register_graphql_field("Page", 'templateSlug', [
+          'type' => 'String',
+          'resolve' => function(\WPGraphQL\Model\Post $val, $args, $context, $info) {
+            return get_post_meta($val->ID, '_wp_page_template', true );
+          }
+        ]);
+
         $postTypes = get_post_types([], 'objects');
         foreach ($postTypes as $type) {
           if ($type->show_in_rest && post_type_supports($type->name, "editor") && $type->name != "wp_block") {
