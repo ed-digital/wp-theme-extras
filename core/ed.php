@@ -121,7 +121,9 @@ class ED {
         register_graphql_field("Page", 'templateSlug', [
           'type' => 'String',
           'resolve' => function(\WPGraphQL\Model\Post $val, $args, $context, $info) {
-            return get_post_meta($val->ID, '_wp_page_template', true );
+            $template = get_post_meta($val->ID, '_wp_page_template', true );
+            if ($template == "") $template = "default";
+            return $template;
           }
         ]);
 
