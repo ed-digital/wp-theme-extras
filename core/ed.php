@@ -135,7 +135,7 @@ class ED {
             register_graphql_field($typeName, 'blocks', [
               'type' => 'ContentBlocks',
               'resolve' => function(\WPGraphQL\Model\Post $val, $args, $context, $info) {
-                $content = @parseAndProcessGutenbergContent(get_post($val->ID)->post_content);
+                $content = @parseAndProcessGutenbergContent($val->post_content ?? get_post($val->ID)->post_content);
                 return $content;
               }
             ]);
